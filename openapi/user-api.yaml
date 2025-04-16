@@ -1,0 +1,124 @@
+openapi: 3.0.3
+info:
+  title: User API
+  version: 1.0.0
+  description: CRUD API for managing users
+
+servers:
+  - url: http://localhost:8080/api
+
+paths:
+  /users:
+    get:
+      summary: Get all users
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+    post:
+      summary: Create a new user
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /users/{id}:
+    patch:
+      summary: Update user fields
+      operationId: updateUser
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPatchRequest'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+    delete:
+      summary: Delete a user
+      operationId: deleteUser
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User deleted successfully
+
+components:
+  schemas:
+    UserRequest:
+      type: object
+      required:
+        - name
+        - department
+        - supervisorId
+      properties:
+        name:
+          type: string
+        department:
+          type: string
+        supervisorId:
+          type: string
+
+    UserPatchRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        department:
+          type: string
+        supervisorId:
+          type: string
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        dni:
+          type: string
+        department:
+          type: string
+        supervisorId:
+          type: string
+        created:
+          type: string
+          format: date-time
+        lastModified:
+          type: string
+          format: date-time
+        modifiedBy:
+          type: string

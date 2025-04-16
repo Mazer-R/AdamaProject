@@ -1,0 +1,114 @@
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
+plugins {
+	id 'java'
+	id 'idea'
+	id 'org.springframework.boot' version '3.4.4'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.openapi.generator' version '7.12.0'
+}
+
+group = 'com.adama'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+// Hace que IntelliJ vea los directorios generados como fuentes válidas
+idea {
+	module {
+		sourceDirs += file("$buildDir/generated/product-api-server/src/main/java")
+		sourceDirs += file("$buildDir/generated/user-api-server/src/main/java")
+		generatedSourceDirs += file("$buildDir/generated/product-api-server/src/main/java")
+		generatedSourceDirs += file("$buildDir/generated/user-api-server/src/main/java")
+	}
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'org.postgresql:postgresql'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'io.swagger.core.v3:swagger-annotations:2.2.21'
+	implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+	implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+def apiSpecDir = "$rootDir/openapi"
+
+
+sourceSets {
+	main {
+		java {
+			srcDirs += layout.buildDirectory.dir("generated/product-api-server/src/main/java").get().asFile
+			srcDirs += layout.buildDirectory.dir("generated/user-api-server/src/main/java").get().asFile
+		}
+	}
+}
+
+
+tasks.register('generateProductApi', GenerateTask) {
+	group = "openapi"
+	description = "Genera código del Product API"
+	generatorName = "spring"
+	inputSpec = "$apiSpecDir/product-api.yaml".toString()
+	outputDir = layout.buildDirectory.dir("generated/product-api-server").get().asFile.absolutePath
+	apiPackage = "com.adama.product.api"
+	modelPackage = "com.adama.product.model"
+	invokerPackage = "com.adama.product.invoker"
+	configOptions = [
+			dateLibrary          : "java8",
+			interfaceOnly        : "true",
+			useTags              : "true",
+			skipDefaultInterface : "true",
+			useSpringController  : "true",
+			useSpringBoot3       : "true",
+			generateBuilders     : "true"
+	]
+}
+
+tasks.register('generateUserApi', GenerateTask) {
+	group = "openapi"
+	description = "Genera código del User API"
+	generatorName = "spring"
+	inputSpec = "$apiSpecDir/user-api.yaml".toString()
+	outputDir = layout.buildDirectory.dir("generated/user-api-server").get().asFile.absolutePath
+	apiPackage = "com.adama.user.api"
+	modelPackage = "com.adama.user.model"
+	invokerPackage = "com.adama.user.invoker"
+
+	configOptions = [
+			dateLibrary          : "java8",
+			interfaceOnly        : "true",
+			useTags              : "true",
+			skipDefaultInterface : "true",
+			useSpringController  : "true",
+			useSpringBoot3       : "true",
+			generateBuilders     : "true"
+	]
+}
+
+// Hook the tasks into the build process
+compileJava.dependsOn generateProductApi, generateUserApi
