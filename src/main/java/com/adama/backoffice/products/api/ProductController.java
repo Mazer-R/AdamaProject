@@ -60,6 +60,23 @@ public class ProductController implements ProductApi {
     }
 
     @Override
+    public ResponseEntity<ProductResponse> getProductById(String id) {
+        try {
+            UUID uuid = UUID.fromString(id);
+            Optional<Product> optionalProduct = productRepository.findById(uuid);
+
+            if (optionalProduct.isPresent()) {
+                Product product = optionalProduct.get();
+                return ResponseEntity.ok(ProductMapper.toResponse(product));
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Override
     public ResponseEntity<ProductResponse> updateProduct(String id, ProductPatchRequest productPatchRequest) {
         try {
             UUID uuid = UUID.fromString(id);

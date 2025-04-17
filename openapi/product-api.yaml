@@ -43,6 +43,27 @@ paths:
                 $ref: '#/components/schemas/ProductResponse'
 
   /products/{id}:
+    get:
+      summary: Get a product by ID
+      operationId: getProductById
+      tags:
+        - Product
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '404':
+          description: Product not found
+
     patch:
       summary: Update fields of a product
       operationId: updateProduct

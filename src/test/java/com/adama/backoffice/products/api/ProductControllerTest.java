@@ -186,4 +186,22 @@ class ProductControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         verifyNoInteractions(productRepository);
     }
+    @Test
+    @DisplayName("GET getProductById with valid ID-should return  200 OK")
+    void getProductById_ValidExistingId_ReturnsProduct() {
+        when(productRepository.findById(testId)).thenReturn(Optional.of(testProduct));
+
+        ResponseEntity<ProductResponse> response = productController.getProductById(testId.toString());
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(testProduct.getName(), response.getBody().getName());
+    }
+    @Test
+    @DisplayName("GET getProductById with invalid ID – return 404 Not Found")
+    void getProductById_InvalidId_ReturnsNotFound() {
+        ResponseEntity<ProductResponse> response = productController.getProductById("invalid-id");
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        verifyNoInteractions(productRepository);
+    }
 }
