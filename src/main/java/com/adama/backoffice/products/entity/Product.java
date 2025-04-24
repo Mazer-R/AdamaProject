@@ -18,9 +18,9 @@ public class Product {
     private String description;
     private String type;
     private String brand;
+    private String model;
     private String status;
     private String userId;
-
     private LocalDateTime created;
     private LocalDateTime lastModified;
     private String modifiedBy;
@@ -64,6 +64,10 @@ public class Product {
     public void setBrand(String brand) {
         this.brand = brand;
     }
+
+    public String getModel() {return model;}
+
+    public void setModel(String model) {this.model = model;}
 
     public String getStatus() {
         return status;

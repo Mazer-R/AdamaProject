@@ -73,6 +73,7 @@ class ProductControllerIntegrationTest {
         request.setDescription("Test Description");
         request.setType("Test Type");
         request.setBrand("Test Brand");
+        request.setModel("Test Model");
         request.setStatus("ACTIVE");
         request.setUserId("user123");
 
@@ -82,6 +83,7 @@ class ProductControllerIntegrationTest {
         savedProduct.setDescription("Test Description");
         savedProduct.setType("Test Type");
         savedProduct.setBrand("Test Brand");
+        savedProduct.setModel("Test Model");
         savedProduct.setStatus("ACTIVE");
         savedProduct.setUserId("user123");
 
@@ -97,6 +99,7 @@ class ProductControllerIntegrationTest {
                 .andExpect(jsonPath("$.description", is("Test Description")))
                 .andExpect(jsonPath("$.type", is("Test Type")))
                 .andExpect(jsonPath("$.brand", is("Test Brand")))
+                .andExpect(jsonPath("$.model", is("Test Model")))
                 .andExpect(jsonPath("$.status", is("ACTIVE")))
                 .andExpect(jsonPath("$.userId", is("user123")));
     }
@@ -117,6 +120,7 @@ class ProductControllerIntegrationTest {
         existingProduct.setDescription("Original Description");
         existingProduct.setType("Original Type");
         existingProduct.setBrand("Original Brand");
+        existingProduct.setModel("Original Model");
         existingProduct.setStatus("INACTIVE");
         existingProduct.setUserId("original-user");
 
@@ -126,6 +130,7 @@ class ProductControllerIntegrationTest {
         updatedProduct.setDescription("Original Description");
         updatedProduct.setType("Original Type");
         updatedProduct.setBrand("Original Brand");
+        updatedProduct.setModel("Original Model");
         updatedProduct.setStatus("INACTIVE");
         updatedProduct.setUserId("original-user");
 

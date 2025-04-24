@@ -50,6 +50,7 @@ class ProductApiFullIntegrationTest {
         request.setDescription("Integration Test Description");
         request.setType("Integration Test Type");
         request.setBrand("Integration Test Brand");
+        request.setModel("Integration Test Model");
         request.setStatus("ACTIVE");
         request.setUserId("integration-user");
 
@@ -83,6 +84,7 @@ class ProductApiFullIntegrationTest {
         product.setDescription("Original Description");
         product.setType("Original Type");
         product.setBrand("Original Brand");
+        product.setModel("Original Model");
         product.setStatus("INACTIVE");
         product.setUserId("original-user");
         product = productRepository.save(product);
@@ -115,6 +117,7 @@ class ProductApiFullIntegrationTest {
         product.setDescription("Delete Me");
         product.setType("Test Type");
         product.setBrand("Test Brand");
+        product.setModel("Test Model");
         product.setStatus("ACTIVE");
         product.setUserId("test-user");
         product = productRepository.save(product);

@@ -15,6 +15,7 @@ public class ProductMapper {
         product.setDescription(request.getDescription());
         product.setType(request.getType());
         product.setBrand(request.getBrand());
+        product.setModel(request.getModel());
         product.setStatus(request.getStatus());
         product.setUserId(request.getUserId());
         product.setCreated(LocalDateTime.now());
@@ -30,6 +31,7 @@ public class ProductMapper {
         response.setDescription(entity.getDescription());
         response.setType(entity.getType());
         response.setBrand(entity.getBrand());
+        response.setModel(entity.getModel());
         response.setStatus(entity.getStatus());
         response.setUserId(entity.getUserId());
         return response;

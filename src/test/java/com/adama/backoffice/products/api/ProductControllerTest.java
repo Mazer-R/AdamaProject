@@ -45,6 +45,7 @@ class ProductControllerTest {
         testProduct.setDescription("Test Description");
         testProduct.setType("Test Type");
         testProduct.setBrand("Test Brand");
+        testProduct.setModel("Test Model");
         testProduct.setStatus("ACTIVE");
         testProduct.setUserId("user123");
     }
@@ -58,6 +59,7 @@ class ProductControllerTest {
         request.setDescription("Test Description");
         request.setType("Test Type");
         request.setBrand("Test Brand");
+        request.setModel("Test Model");
         request.setStatus("ACTIVE");
         request.setUserId("user123");
 
@@ -70,6 +72,7 @@ class ProductControllerTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Test Product", response.getBody().getName());
+        assertEquals("Test Model", response.getBody().getModel());
         verify(productRepository).save(any(Product.class));
     }
 
@@ -119,6 +122,7 @@ class ProductControllerTest {
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
         assertEquals("Test Product", response.getBody().get(0).getName());
+        assertEquals("Test Model", response.getBody().get(0).getModel());
         verify(productRepository).findAll();
     }
 
@@ -136,6 +140,7 @@ class ProductControllerTest {
         updatedProduct.setDescription("Test Description");
         updatedProduct.setType("Test Type");
         updatedProduct.setBrand("Test Brand");
+        updatedProduct.setModel("Updated Model");
         updatedProduct.setStatus("ACTIVE");
         updatedProduct.setUserId("user123");
 
@@ -149,6 +154,7 @@ class ProductControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Updated Product", response.getBody().getName());
+        assertEquals("Updated Model", response.getBody().getModel());
         verify(productRepository).findById(testId);
         verify(productRepository).save(any(Product.class));
     }
@@ -195,6 +201,7 @@ class ProductControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(testProduct.getName(), response.getBody().getName());
+        assertEquals(testProduct.getModel(), response.getBody().getModel());
     }
     @Test
     @DisplayName("GET getProductById with invalid ID – return 404 Not Found")
@@ -203,5 +210,52 @@ class ProductControllerTest {
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         verifyNoInteractions(productRepository);
+    }
+    @Test
+    @DisplayName("GET getProducts – without params returns all products")
+    void getProducts_WithoutParams_ReturnsAllProducts() {
+        List<Product> products = List.of(testProduct);
+        when(productRepository.findAll()).thenReturn(products);
+
+        ResponseEntity<List<ProductResponse>> response = productController.getProducts(null, null);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        verify(productRepository).findAll();
+    }
+
+    @Test
+    @DisplayName("GET getProducts – with only brand returns filtered products")
+    void getProducts_WithOnlyBrand_ReturnsFilteredByBrand() {
+        String brand = "Test Brand";
+        List<Product> products = List.of(testProduct);
+        when(productRepository.findByBrand(brand)).thenReturn(products);
+
+        ResponseEntity<List<ProductResponse>> response = productController.getProducts(brand, null);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        assertEquals("Test Brand", response.getBody().get(0).getBrand());
+        verify(productRepository).findByBrand(brand);
+    }
+
+    @Test
+    @DisplayName("GET getProducts – with brand and model returns filtered products")
+    void getProducts_WithBrandAndModel_ReturnsFilteredByBoth() {
+        String brand = "Test Brand";
+        String model = "Test Model";
+        List<Product> products = List.of(testProduct);
+        when(productRepository.findByBrandAndModel(brand, model)).thenReturn(products);
+
+        ResponseEntity<List<ProductResponse>> response = productController.getProducts(brand, model);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        assertEquals("Test Brand", response.getBody().get(0).getBrand());
+        assertEquals("Test Model", response.getBody().get(0).getModel());
+        verify(productRepository).findByBrandAndModel(brand, model);
     }
 }

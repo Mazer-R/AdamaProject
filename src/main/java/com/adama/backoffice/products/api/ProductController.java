@@ -9,7 +9,9 @@ import com.adama.product.model.ProductRequest;
 import com.adama.product.model.ProductResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
@@ -52,6 +54,7 @@ public class ProductController implements ProductApi {
 
     @Override
     public ResponseEntity<List<ProductResponse>> getAllProducts() {
+
         List<Product> products = productRepository.findAll();
         List<ProductResponse> responses = products.stream()
                 .map(ProductMapper::toResponse)
@@ -98,6 +101,9 @@ public class ProductController implements ProductApi {
                 if (productPatchRequest.getBrand() != null) {
                     product.setBrand(productPatchRequest.getBrand());
                 }
+                if (productPatchRequest.getModel() != null) {
+                    product.setModel(productPatchRequest.getModel());
+                }
                 if (productPatchRequest.getStatus() != null) {
                     product.setStatus(productPatchRequest.getStatus());
                 }
@@ -112,5 +118,26 @@ public class ProductController implements ProductApi {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+    @GetMapping("/products")
+    public ResponseEntity<List<ProductResponse>> getProducts(
+            @RequestParam(required = false) String brand,
+            @RequestParam(required = false) String model
+    ) {
+        List<Product> products;
+
+        if (brand != null && model != null) {
+            products = productRepository.findByBrandAndModel(brand, model);
+        } else if (brand != null) {
+            products = productRepository.findByBrand(brand);
+        } else {
+            products = productRepository.findAll();
+        }
+
+        List<ProductResponse> responses = products.stream()
+                .map(ProductMapper::toResponse)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(responses);
     }
 }
