@@ -121,15 +121,15 @@ public class ProductController implements ProductApi {
     }
     @GetMapping("/products")
     public ResponseEntity<List<ProductResponse>> getProducts(
-            @RequestParam(required = false) String brand,
-            @RequestParam(required = false) String model
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String brand
     ) {
         List<Product> products;
 
-        if (brand != null && model != null) {
-            products = productRepository.findByBrandAndModel(brand, model);
-        } else if (brand != null) {
-            products = productRepository.findByBrand(brand);
+        if (brand != null && type != null) {
+            products = productRepository.findByTypeAndBrand(type, brand);
+        } else if (type != null) {
+            products = productRepository.findBytype(type);
         } else {
             products = productRepository.findAll();
         }

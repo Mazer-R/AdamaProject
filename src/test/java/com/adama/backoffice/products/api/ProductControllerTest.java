@@ -226,36 +226,37 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("GET getProducts – with only brand returns filtered products")
-    void getProducts_WithOnlyBrand_ReturnsFilteredByBrand() {
-        String brand = "Test Brand";
+    @DisplayName("GET getProducts – with only type returns filtered products")
+    void getProducts_WithOnlyType_ReturnsFilteredByType() {
+        String type = "Test Type";
         List<Product> products = List.of(testProduct);
-        when(productRepository.findByBrand(brand)).thenReturn(products);
+        // Asegúrate de que el método del repositorio sea findByType
+        when(productRepository.findBytype(type)).thenReturn(products);
 
-        ResponseEntity<List<ProductResponse>> response = productController.getProducts(brand, null);
+        ResponseEntity<List<ProductResponse>> response = productController.getProducts(type, null);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
-        assertEquals("Test Brand", response.getBody().get(0).getBrand());
-        verify(productRepository).findByBrand(brand);
+        assertEquals("Test Type", response.getBody().get(0).getType());
+        verify(productRepository).findBytype(type);
     }
-
     @Test
-    @DisplayName("GET getProducts – with brand and model returns filtered products")
-    void getProducts_WithBrandAndModel_ReturnsFilteredByBoth() {
+    @DisplayName("GET getProducts – with brand and type returns filtered products")
+    void getProducts_WithBrandAndType_ReturnsFilteredByBoth() {
         String brand = "Test Brand";
-        String model = "Test Model";
+        String type = "Test Type";
         List<Product> products = List.of(testProduct);
-        when(productRepository.findByBrandAndModel(brand, model)).thenReturn(products);
+        // Asegúrate de que el método del repositorio sea findByTypeAndBrand
+        when(productRepository.findByTypeAndBrand(type, brand)).thenReturn(products);
 
-        ResponseEntity<List<ProductResponse>> response = productController.getProducts(brand, model);
+        ResponseEntity<List<ProductResponse>> response = productController.getProducts(type, brand);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
         assertEquals("Test Brand", response.getBody().get(0).getBrand());
-        assertEquals("Test Model", response.getBody().get(0).getModel());
-        verify(productRepository).findByBrandAndModel(brand, model);
+        assertEquals("Test Type", response.getBody().get(0).getType());
+        verify(productRepository).findByTypeAndBrand(type, brand);
     }
 }
