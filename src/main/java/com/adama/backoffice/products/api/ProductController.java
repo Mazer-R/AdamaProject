@@ -80,6 +80,43 @@ public class ProductController implements ProductApi {
     }
 
     @Override
+    public ResponseEntity<List<ProductResponse>> getProductsByType(String type) {
+        try {
+            List<Product> productList = productRepository.findByType(type);
+            if (productList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            } else {
+                List<ProductResponse> responses = productList.stream()
+                        .map(ProductMapper::toResponse)
+                        .collect(Collectors.toList());
+                return ResponseEntity.ok(responses);
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Override
+    public ResponseEntity<List<ProductResponse>> getProductsByTypeAndBrand(String type, String brand) {
+        try {
+            List<Product> productList = productRepository.findByTypeAndBrand(type, brand);
+            if (productList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            } else {
+                List<ProductResponse> responses = productList.stream()
+                        .map(ProductMapper::toResponse)
+                        .collect(Collectors.toList());
+                return ResponseEntity.ok(responses);
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+
+
+    @Override
     public ResponseEntity<ProductResponse> updateProduct(String id, ProductPatchRequest productPatchRequest) {
         try {
             UUID uuid = UUID.fromString(id);
@@ -119,25 +156,4 @@ public class ProductController implements ProductApi {
             return ResponseEntity.notFound().build();
         }
     }
-    @GetMapping("/products")
-    public ResponseEntity<List<ProductResponse>> getProducts(
-            @RequestParam(required = false) String type,
-            @RequestParam(required = false) String brand
-    ) {
-        List<Product> products;
-
-        if (brand != null && type != null) {
-            products = productRepository.findByTypeAndBrand(type, brand);
-        } else if (type != null) {
-            products = productRepository.findBytype(type);
-        } else {
-            products = productRepository.findAll();
-        }
-
-        List<ProductResponse> responses = products.stream()
-                .map(ProductMapper::toResponse)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(responses);
-    }
-}
+  }

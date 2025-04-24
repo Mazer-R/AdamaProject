@@ -211,35 +211,21 @@ class ProductControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         verifyNoInteractions(productRepository);
     }
-    @Test
-    @DisplayName("GET getProducts – without params returns all products")
-    void getProducts_WithoutParams_ReturnsAllProducts() {
-        List<Product> products = List.of(testProduct);
-        when(productRepository.findAll()).thenReturn(products);
-
-        ResponseEntity<List<ProductResponse>> response = productController.getProducts(null, null);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-        verify(productRepository).findAll();
-    }
 
     @Test
     @DisplayName("GET getProducts – with only type returns filtered products")
     void getProducts_WithOnlyType_ReturnsFilteredByType() {
         String type = "Test Type";
         List<Product> products = List.of(testProduct);
-        // Asegúrate de que el método del repositorio sea findByType
-        when(productRepository.findBytype(type)).thenReturn(products);
+        when(productRepository.findByType(type)).thenReturn(products);
 
-        ResponseEntity<List<ProductResponse>> response = productController.getProducts(type, null);
+        ResponseEntity<List<ProductResponse>> response = productController.getProductsByType(type);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
         assertEquals("Test Type", response.getBody().get(0).getType());
-        verify(productRepository).findBytype(type);
+        verify(productRepository).findByType(type);
     }
     @Test
     @DisplayName("GET getProducts – with brand and type returns filtered products")
@@ -250,7 +236,7 @@ class ProductControllerTest {
         // Asegúrate de que el método del repositorio sea findByTypeAndBrand
         when(productRepository.findByTypeAndBrand(type, brand)).thenReturn(products);
 
-        ResponseEntity<List<ProductResponse>> response = productController.getProducts(type, brand);
+        ResponseEntity<List<ProductResponse>> response = productController.getProductsByTypeAndBrand(type, brand);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());

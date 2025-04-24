@@ -103,6 +103,58 @@ paths:
       responses:
         '204':
           description: Product deleted
+  /products/type/{type}:
+    get:
+      summary: Get products by type
+      operationId: getProductsByType
+      tags:
+        - Product
+      parameters:
+        - in: path
+          name: type
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Products by type
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductResponse'
+        '404':
+          description: No products found for this type
+
+  /products/type/{type}/brand/{brand}:
+    get:
+      summary: Get products by type and brand
+      operationId: getProductsByTypeAndBrand
+      tags:
+        - Product
+      parameters:
+        - in: path
+          name: type
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: brand
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Products by type and brand
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductResponse'
+        '404':
+          description: No products found for type and brand
 
 components:
   schemas:

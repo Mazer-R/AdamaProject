@@ -20,7 +20,7 @@ public class ProductMapper {
         product.setUserId(request.getUserId());
         product.setCreated(LocalDateTime.now());
         product.setLastModified(LocalDateTime.now());
-        product.setModifiedBy("SYSTEM"); // o lo que necesites
+        product.setModifiedBy("SYSTEM");
         return product;
     }
 
