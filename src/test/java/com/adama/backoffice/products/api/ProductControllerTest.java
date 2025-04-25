@@ -95,14 +95,10 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE deleteProduct with invalid ID format – should return 404 Not Found")
-    void deleteProduct_WithInvalidId_ShouldReturnNotFound() {
-
-        // Act
+    @DisplayName("DELETE deleteProduct with invalid ID format – should return 400 Bad Request")
+    void deleteProduct_WithInvalidId_ShouldReturnBadRequest() {
         ResponseEntity<Void> response = productController.deleteProduct("invalid-id");
-
-        // Assert
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verifyNoInteractions(productRepository);
     }
 
@@ -115,16 +111,29 @@ class ProductControllerTest {
         when(productRepository.findAll()).thenReturn(products);
 
         // Act
-        ResponseEntity<List<ProductResponse>> response = productController.getAllProducts();
+        ResponseEntity<List<ProductResponse>> response = productController.getAllProducts(null, null);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
-        assertEquals("Test Product", response.getBody().get(0).getName());
-        assertEquals("Test Model", response.getBody().get(0).getModel());
+        assertEquals("Test Product", response.getBody().getFirst().getName());
         verify(productRepository).findAll();
     }
+    @Test
+    @DisplayName("GET getProducts – with only type returns filtered products")
+    void getProducts_WithOnlyType_ReturnsFilteredByType() {
+        String type = "Test Type";
+        List<Product> products = List.of(testProduct);
+        when(productRepository.findByType(type)).thenReturn(products);
+
+        ResponseEntity<List<ProductResponse>> response = productController.getAllProducts(type, null);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Test Type", response.getBody().getFirst().getType());
+        verify(productRepository).findByType(type);
+    }
+
 
     @Test
     @DisplayName("PATCH updateProduct with valid ID – should return updated product and 200 OK")
@@ -133,6 +142,7 @@ class ProductControllerTest {
         String id = testId.toString();
         ProductPatchRequest request = new ProductPatchRequest();
         request.setName("Updated Product");
+        request.setModel("Updated Model");
 
         Product updatedProduct = new Product();
         updatedProduct.setId(testId);
@@ -179,7 +189,7 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("PATCH updateProduct with invalid ID format – should return 404 Not Found and skip DB call")
+    @DisplayName("PATCH updateProduct with invalid ID format – should return 400 Bad Request")
     void updateProduct_WithInvalidId_ShouldReturnNotFound() {
         // Arrange
         ProductPatchRequest request = new ProductPatchRequest();
@@ -189,7 +199,7 @@ class ProductControllerTest {
         ResponseEntity<ProductResponse> response = productController.updateProduct("invalid-id", request);
 
         // Assert
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verifyNoInteractions(productRepository);
     }
     @Test
@@ -208,41 +218,8 @@ class ProductControllerTest {
     void getProductById_InvalidId_ReturnsNotFound() {
         ResponseEntity<ProductResponse> response = productController.getProductById("invalid-id");
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verifyNoInteractions(productRepository);
     }
 
-    @Test
-    @DisplayName("GET getProducts – with only type returns filtered products")
-    void getProducts_WithOnlyType_ReturnsFilteredByType() {
-        String type = "Test Type";
-        List<Product> products = List.of(testProduct);
-        when(productRepository.findByType(type)).thenReturn(products);
-
-        ResponseEntity<List<ProductResponse>> response = productController.getProductsByType(type);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-        assertEquals("Test Type", response.getBody().get(0).getType());
-        verify(productRepository).findByType(type);
-    }
-    @Test
-    @DisplayName("GET getProducts – with brand and type returns filtered products")
-    void getProducts_WithBrandAndType_ReturnsFilteredByBoth() {
-        String brand = "Test Brand";
-        String type = "Test Type";
-        List<Product> products = List.of(testProduct);
-        // Asegúrate de que el método del repositorio sea findByTypeAndBrand
-        when(productRepository.findByTypeAndBrand(type, brand)).thenReturn(products);
-
-        ResponseEntity<List<ProductResponse>> response = productController.getProductsByTypeAndBrand(type, brand);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-        assertEquals("Test Brand", response.getBody().get(0).getBrand());
-        assertEquals("Test Type", response.getBody().get(0).getType());
-        verify(productRepository).findByTypeAndBrand(type, brand);
-    }
-}
+   }

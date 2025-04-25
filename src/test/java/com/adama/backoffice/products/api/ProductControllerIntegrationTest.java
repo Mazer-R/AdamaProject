@@ -162,10 +162,10 @@ class ProductControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("DELETE /api/products/{id} with invalid UUID – should return 404 Not Found")
+    @DisplayName("DELETE /api/products/{id} with invalid UUID – should return 400 Bad Request")
     void deleteProduct_WithInvalidId_ShouldReturnNotFound() throws Exception {
         // Act & Assert
         mockMvc.perform(delete("/api/products/{id}", "invalid-uuid"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 }

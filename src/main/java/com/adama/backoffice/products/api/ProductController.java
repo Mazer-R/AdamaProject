@@ -7,12 +7,12 @@ import com.adama.product.api.ProductApi;
 import com.adama.product.model.ProductPatchRequest;
 import com.adama.product.model.ProductRequest;
 import com.adama.product.model.ProductResponse;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,12 +32,16 @@ public class ProductController implements ProductApi {
     }
 
     @Override
-    public ResponseEntity<ProductResponse> createProduct(ProductRequest productRequest) {
+    public ResponseEntity<ProductResponse> createProduct(
+            @Parameter(name = "ProductRequest", description = "", required = true)
+            @Valid @RequestBody ProductRequest productRequest) {
+
         Product product = ProductMapper.toEntity(productRequest);
         product = productRepository.save(product);
         ProductResponse response = ProductMapper.toResponse(product);
         return ResponseEntity.status(201).body(response);
     }
+
 
     @Override
     public ResponseEntity<Void> deleteProduct(String id) {
@@ -48,18 +52,33 @@ public class ProductController implements ProductApi {
             }
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
+            return ResponseEntity.badRequest().build();         }
     }
 
     @Override
-    public ResponseEntity<List<ProductResponse>> getAllProducts() {
+    @GetMapping("/products")
+    public ResponseEntity<List<ProductResponse>> getAllProducts(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String brand) {
 
-        List<Product> products = productRepository.findAll();
-        List<ProductResponse> responses = products.stream()
+        type = (type != null) ? type.trim() : null;
+        brand = (brand != null) ? brand.trim() : null;
+
+        List<Product> products;
+
+        if (type != null && !type.isEmpty() && brand != null && !brand.isEmpty()) {
+            products = productRepository.findByTypeAndBrand(type, brand);
+        } else if (type != null && !type.isEmpty()) {
+            products = productRepository.findByType(type);
+        } else if (brand != null && !brand.isEmpty()) {
+            products = productRepository.findByBrand(brand);
+        } else {
+            products = productRepository.findAll();
+        }
+
+        return ResponseEntity.ok(products.stream()
                 .map(ProductMapper::toResponse)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(responses);
+                .collect(Collectors.toList()));
     }
 
     @Override
@@ -75,85 +94,52 @@ public class ProductController implements ProductApi {
                 return ResponseEntity.notFound().build();
             }
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @Override
-    public ResponseEntity<List<ProductResponse>> getProductsByType(String type) {
+    public ResponseEntity<ProductResponse> updateProduct(
+            @PathVariable("id") String id,
+            @Valid @RequestBody ProductPatchRequest productPatchRequest) {
+
         try {
-            List<Product> productList = productRepository.findByType(type);
-            if (productList.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            } else {
-                List<ProductResponse> responses = productList.stream()
-                        .map(ProductMapper::toResponse)
-                        .collect(Collectors.toList());
-                return ResponseEntity.ok(responses);
-            }
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @Override
-    public ResponseEntity<List<ProductResponse>> getProductsByTypeAndBrand(String type, String brand) {
-        try {
-            List<Product> productList = productRepository.findByTypeAndBrand(type, brand);
-            if (productList.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            } else {
-                List<ProductResponse> responses = productList.stream()
-                        .map(ProductMapper::toResponse)
-                        .collect(Collectors.toList());
-                return ResponseEntity.ok(responses);
-            }
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-
-
-
-    @Override
-    public ResponseEntity<ProductResponse> updateProduct(String id, ProductPatchRequest productPatchRequest) {
-        try {
+            // Parse the UUID from the provided ID
             UUID uuid = UUID.fromString(id);
+
+            // Check if the product exists
             Optional<Product> optionalProduct = productRepository.findById(uuid);
-
-            if (optionalProduct.isPresent()) {
-                Product product = optionalProduct.get();
-
-                // Update only the fields that are present in the request
-                if (productPatchRequest.getName() != null) {
-                    product.setName(productPatchRequest.getName());
-                }
-                if (productPatchRequest.getDescription() != null) {
-                    product.setDescription(productPatchRequest.getDescription());
-                }
-                if (productPatchRequest.getType() != null) {
-                    product.setType(productPatchRequest.getType());
-                }
-                if (productPatchRequest.getBrand() != null) {
-                    product.setBrand(productPatchRequest.getBrand());
-                }
-                if (productPatchRequest.getModel() != null) {
-                    product.setModel(productPatchRequest.getModel());
-                }
-                if (productPatchRequest.getStatus() != null) {
-                    product.setStatus(productPatchRequest.getStatus());
-                }
-
-                product.setLastModified(LocalDateTime.now());
-                product = productRepository.save(product);
-
-                return ResponseEntity.ok(ProductMapper.toResponse(product));
-            } else {
-                return ResponseEntity.notFound().build();
+            if (optionalProduct.isEmpty()) {
+                return ResponseEntity.notFound().build(); // Return 404 if not found
             }
+
+            // Update the product fields
+            Product product = optionalProduct.get();
+            if (productPatchRequest.getName() != null) product.setName(productPatchRequest.getName());
+            if (productPatchRequest.getDescription() != null) product.setDescription(productPatchRequest.getDescription());
+            if (productPatchRequest.getType() != null) product.setType(productPatchRequest.getType());
+            if (productPatchRequest.getBrand() != null) product.setBrand(productPatchRequest.getBrand());
+            if (productPatchRequest.getModel() != null) product.setModel(productPatchRequest.getModel());
+            if (productPatchRequest.getStatus() != null) product.setStatus(productPatchRequest.getStatus());
+
+            // Update metadata
+            product.setLastModified(LocalDateTime.now());
+            product.setModifiedBy("SYSTEM");
+
+            // Save the updated product
+            productRepository.save(product);
+
+            // Map the updated product to a response object
+            ProductResponse response = ProductMapper.toResponse(product);
+
+            // Return the updated product with a 200 status
+            return ResponseEntity.ok(response);
+
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
+            // Return 400 if the ID is not a valid UUID
+            return ResponseEntity.badRequest().build();
         }
     }
-  }
+
+
+    }

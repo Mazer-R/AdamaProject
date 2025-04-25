@@ -10,10 +10,19 @@ servers:
 paths:
   /products:
     get:
-      summary: Get all products
+      summary: Get products with optional filters (type and/or brand)
       operationId: getAllProducts
       tags:
         - Product
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+        - in: query
+          name: brand
+          schema:
+            type: string
       responses:
         '200':
           description: List of products
@@ -23,6 +32,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ProductResponse'
+        '404':
+          description: No products found
     post:
       summary: Create a new product
       operationId: createProduct
@@ -63,7 +74,6 @@ paths:
                 $ref: '#/components/schemas/ProductResponse'
         '404':
           description: Product not found
-
     patch:
       summary: Update fields of a product
       operationId: updateProduct
@@ -88,7 +98,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProductResponse'
-
+        '404':
+          description: Product not found
+        '400':
+          description: Invalid UUID format
     delete:
       summary: Delete a product
       operationId: deleteProduct
@@ -103,58 +116,8 @@ paths:
       responses:
         '204':
           description: Product deleted
-  /products/type/{type}:
-    get:
-      summary: Get products by type
-      operationId: getProductsByType
-      tags:
-        - Product
-      parameters:
-        - in: path
-          name: type
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Products by type
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ProductResponse'
         '404':
-          description: No products found for this type
-
-  /products/type/{type}/brand/{brand}:
-    get:
-      summary: Get products by type and brand
-      operationId: getProductsByTypeAndBrand
-      tags:
-        - Product
-      parameters:
-        - in: path
-          name: type
-          required: true
-          schema:
-            type: string
-        - in: path
-          name: brand
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Products by type and brand
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ProductResponse'
-        '404':
-          description: No products found for type and brand
+          description: Product not found
 
 components:
   schemas:
