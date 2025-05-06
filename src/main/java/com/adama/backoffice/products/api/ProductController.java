@@ -8,7 +8,6 @@ import com.adama.product.model.ProductPatchRequest;
 import com.adama.product.model.ProductRequest;
 import com.adama.product.model.ProductResponse;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
