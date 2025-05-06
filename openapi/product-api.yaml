@@ -162,7 +162,7 @@ components:
           type: string
         status:
           type: string
-        userID:
+        userId:
           type: string
 
     ProductResponse:
