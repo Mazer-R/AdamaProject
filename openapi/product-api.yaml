@@ -162,6 +162,8 @@ components:
           type: string
         status:
           type: string
+        userID:
+          type: string
 
     ProductResponse:
       type: object
