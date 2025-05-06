@@ -121,6 +121,7 @@ public class ProductController implements ProductApi {
             if (productPatchRequest.getBrand() != null) product.setBrand(productPatchRequest.getBrand());
             if (productPatchRequest.getModel() != null) product.setModel(productPatchRequest.getModel());
             if (productPatchRequest.getStatus() != null) product.setStatus(productPatchRequest.getStatus());
+            if (productPatchRequest.getUserId() != null) product.setUserId(productPatchRequest.getUserId());
 
             // Update metadata
             product.setLastModified(LocalDateTime.now());
