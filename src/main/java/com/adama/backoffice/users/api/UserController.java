@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api")
 public class UserController implements UserApi {
     private final UserRepository userRepository;
-
+    //private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Autowired
     public UserController(UserRepository userRepository) {
         this.userRepository = userRepository;
