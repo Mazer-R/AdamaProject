@@ -1,6 +1,5 @@
 package com.adama.backoffice.products.api;
 
-import com.adama.backoffice.BackofficeApplicationTests;
 import com.adama.backoffice.products.entity.Product;
 import com.adama.backoffice.products.repository.ProductRepository;
 import com.adama.product.model.ProductPatchRequest;
@@ -27,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class ProductApiFullIntegrationTest extends BackofficeApplicationTests {
+class ProductApiFullIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

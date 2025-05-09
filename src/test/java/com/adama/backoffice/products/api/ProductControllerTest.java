@@ -1,6 +1,5 @@
 package com.adama.backoffice.products.api;
 
-import com.adama.backoffice.BackofficeApplicationTests;
 import com.adama.backoffice.products.entity.Product;
 import com.adama.backoffice.products.repository.ProductRepository;
 import com.adama.product.model.ProductPatchRequest;
