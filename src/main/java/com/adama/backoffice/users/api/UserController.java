@@ -1,38 +1,53 @@
 package com.adama.backoffice.users.api;
 
-import com.adama.backoffice.products.mapper.ProductMapper;
 import com.adama.backoffice.users.entity.User;
 import com.adama.backoffice.users.mapper.UserMapper;
 import com.adama.backoffice.users.repository.UserRepository;
+import com.adama.backoffice.users.service.JwtService;
 import com.adama.user.api.UserApi;
 import com.adama.user.model.*;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
-
+@Slf4j
 @RestController
-@RequestMapping("/api")
+
 public class UserController implements UserApi {
     private final UserRepository userRepository;
-    //private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository,
+                          PasswordEncoder passwordEncoder,
+                          JwtService jwtService) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Override
+    @PostMapping("/users")
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<UserResponse> createUser(
             @Parameter(name = "UserRequest", description = "", required = true)
             @Valid @RequestBody UserRequest userRequest) {
+
         User user = UserMapper.toEntity(userRequest);
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         user = userRepository.save(user);
         UserResponse response = UserMapper.toResponse(user);
         return ResponseEntity.status(201).body(response);
@@ -40,6 +55,8 @@ public class UserController implements UserApi {
 
 
     @Override
+    @DeleteMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(String id) {
         try {
             UUID uuid = UUID.fromString(id);
@@ -62,6 +79,7 @@ public class UserController implements UserApi {
     }
 
     @Override
+    @GetMapping("/users/{id}")
     public ResponseEntity<UserResponse> getUserById(String id) {
         try {
             UUID uuid = UUID.fromString(id);
@@ -79,11 +97,42 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public ResponseEntity<Login200Response> login(LoginRequest loginRequest) {
-        return null;
+    @PostMapping("/auth/login")
+    public ResponseEntity<Login200Response> login(@Valid @RequestBody LoginRequest loginRequest) {
+        Optional<User> optionalUser = userRepository.findByUsername(loginRequest.getUsername());
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User user =optionalUser.get();
+
+        // 2. Verificar contraseña
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String token = jwtService.generateToken(user);
+
+        Login200Response response = new Login200Response()
+                .token(token);
+        return ResponseEntity.ok(response);
+    }
+    @Override
+    @GetMapping("/users/me/role")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> getMyRole() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String role = authentication.getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElseThrow(() -> new IllegalStateException("User role not found"));
+
+        return ResponseEntity.ok(role);
     }
 
     @Override
+    @PatchMapping("/users/{id}")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable("id") String id,
             @Valid @RequestBody UserPatchRequest userPatchRequest) {
@@ -97,10 +146,10 @@ public class UserController implements UserApi {
             if(userPatchRequest.getFirstName() != null)user.setFirstName(userPatchRequest.getFirstName());
             if(userPatchRequest.getLastName() != null)user.setLastName(userPatchRequest.getLastName());
             if(userPatchRequest.getDepartment() != null)user.setDepartment(userPatchRequest.getDepartment());
-            if(userPatchRequest.getRole() != null)user.setRole(userPatchRequest.getRole());
+            if(userPatchRequest.getRole() != null)user.setRole(User.Role.valueOf(userPatchRequest.getRole()));
             if (userPatchRequest.getSupervisorId() != null)user.setSupervisorId(userPatchRequest.getSupervisorId());
 
-            user.setLastModified(LocalDateTime.now());
+            user.setLastModified(LocalDateTime.now().toString());
             user.setModifiedBy("SYSTEM");
 
             userRepository.save(user);
@@ -108,6 +157,11 @@ public class UserController implements UserApi {
             return ResponseEntity.ok(response);
     }catch (IllegalArgumentException e) {
         return ResponseEntity.badRequest().build();}
+    }
+
+    private class ResourceNotFoundException extends Exception {
+        public ResourceNotFoundException(String userNotFound) {
+        }
     }
 }
 

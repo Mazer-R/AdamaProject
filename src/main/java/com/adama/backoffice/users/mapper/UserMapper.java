@@ -4,30 +4,34 @@ import com.adama.backoffice.users.entity.User;
 import com.adama.user.model.UserRequest;
 import com.adama.user.model.UserResponse;
 
-import java.time.LocalDateTime;
-
 public class UserMapper {
 
-    public static User toEntity(UserRequest request){
+    public static User toEntity(UserRequest request) {
         User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(request.getPassword());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setDepartment(request.getDepartment());
-        user.setRole(request.getRole().toString());
-        user.setSupervisorId(request.getSupervisorId());
-        user.setCreated(LocalDateTime.now());
-        user.setLastModified(LocalDateTime.now());
-        user.setModifiedBy("SYSTEM");
+        user.setRole(User.Role.valueOf(request.getRole().name())); // Conversión a Enum
         return user;
     }
 
-    public static UserResponse toResponse(User entitiy){
+    public static UserResponse toResponse(User entity) {
         UserResponse response = new UserResponse();
-        response.setFirstName(entitiy.getFirstName());
-        response.setLastName(entitiy.getLastName());
-        response.setDepartment(entitiy.getDepartment());
-        response.setRole(entitiy.getRole().toString());
-        response.setSupervisorId(entitiy.getSupervisorId());
+        response.setId(entity.getId().toString());
+        response.setUsername(entity.getUsername());
+        response.setFirstName(entity.getFirstName());
+        response.setLastName(entity.getLastName());
+        response.setDepartment(entity.getDepartment());
+        response.setSupervisorId(entity.getSupervisorId());
+        response.setRole(entity.getRole().name());
+        if (entity.getCreated() != null)
+            response.setCreated(entity.getCreated().toString());
+        if (entity.getLastModified() != null) {
+            response.setLastModified(entity.getLastModified().toString());
+        }
+        response.setModifiedBy(entity.getModifiedBy());
         return response;
     }
-}
+    }

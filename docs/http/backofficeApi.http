@@ -1,0 +1,40 @@
+### 1. Login para obtener el token
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin"
+}
+
+> {%
+    // Extrae el token de la respuesta y lo guarda en variable global
+    client.global.set("auth_token", response.body.token);
+%}
+
+### 2. Creación de usuario usando el token almacenado
+POST http://localhost:8080/users
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "username": "user",
+  "password": "user",
+  "firstName": "user",
+  "lastName": "userez",
+  "department": "IT",
+  "role": "USER"
+}
+
+### 3. Acceso a endpoint seguro usando el mismo token
+GET http://localhost:8080/users
+Authorization: Bearer {{auth_token}}
+
+### 4.Delete
+### 4.Delete
+DELETE http://localhost:8080/users/461622bd-9cc7-476c-b760-098c96012ef0
+Authorization: Bearer {{auth_token}}
+
+###5.Role
+GET http://localhost:8080/users/me/role
+Authorization: Beaarer {{auth_token}}
