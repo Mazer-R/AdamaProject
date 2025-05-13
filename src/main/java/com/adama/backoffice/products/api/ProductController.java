@@ -34,7 +34,7 @@ public class ProductController implements ProductApi {
     @PostMapping("/products")
     @PreAuthorize("hasAnyRole('ROLE_WAREHOUSE', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     public ResponseEntity<ProductResponse> createProduct(
-            @Parameter(name = "ProductRequest", description = "", required = true)
+            @Parameter(name = "ProductRequest", required = true)
             @Valid @RequestBody ProductRequest productRequest) {
 
         Product product = ProductMapper.toEntity(productRequest);
