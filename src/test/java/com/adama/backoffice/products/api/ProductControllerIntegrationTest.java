@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.time.LocalTime.now;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,56 +56,50 @@ class ProductControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("GET /api/products when no products exist – should return empty list")
+    @DisplayName("GET /products when no products exist – should return empty list")
     void getAllProducts_ShouldReturnEmptyList() throws Exception {
-        mockMvc.perform(get("/api/products"))
+        mockMvc.perform(get("/products"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test
-    @DisplayName("POST /api/products with valid data – should return created product with correct fields")
+    @DisplayName("POST /products with valid data – should return created product with correct fields")
     void createProduct_ShouldReturnCreatedProduct() throws Exception {
         // Arrange
         ProductRequest request = new ProductRequest();
         request.setName("Test Product");
-        request.setDescription("Test Description");
         request.setType("Test Type");
         request.setBrand("Test Brand");
         request.setModel("Test Model");
-        request.setStatus("ACTIVE");
-        request.setUserId("user123");
 
         Product savedProduct = new Product();
         savedProduct.setId(UUID.randomUUID());
         savedProduct.setName("Test Product");
-        savedProduct.setDescription("Test Description");
         savedProduct.setType("Test Type");
         savedProduct.setBrand("Test Brand");
         savedProduct.setModel("Test Model");
-        savedProduct.setStatus("ACTIVE");
-        savedProduct.setUserId("user123");
+        savedProduct.setStatus(Product.Status.STOCK);
+        savedProduct.setCreated(now().toString());
+        savedProduct.setLastModified(now().toString());
 
         when(productRepository.save(any(Product.class))).thenReturn(savedProduct);
 
         // Act & Assert
-        mockMvc.perform(post("/api/products")
+        mockMvc.perform(post("/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name", is("Test Product")))
-                .andExpect(jsonPath("$.description", is("Test Description")))
                 .andExpect(jsonPath("$.type", is("Test Type")))
                 .andExpect(jsonPath("$.brand", is("Test Brand")))
-                .andExpect(jsonPath("$.model", is("Test Model")))
-                .andExpect(jsonPath("$.status", is("ACTIVE")))
-                .andExpect(jsonPath("$.userId", is("user123")));
+                .andExpect(jsonPath("$.model", is("Test Model")));
     }
 
     @Test
-    @DisplayName("PATCH /api/products/{id} – should update product name and keep other fields unchanged")
+    @DisplayName("PATCH /products/{id} – should update product name and keep other fields unchanged")
     void updateProduct_ShouldReturnUpdatedProduct() throws Exception {
         // Arrange
         UUID testId = UUID.randomUUID();
@@ -112,6 +107,7 @@ class ProductControllerIntegrationTest {
 
         ProductPatchRequest request = new ProductPatchRequest();
         request.setName("Updated Product");
+        request.setStatus(ProductPatchRequest.StatusEnum.valueOf(Product.Status.INACTIVE.name()));
 
         Product existingProduct = new Product();
         existingProduct.setId(testId);
@@ -120,7 +116,7 @@ class ProductControllerIntegrationTest {
         existingProduct.setType("Original Type");
         existingProduct.setBrand("Original Brand");
         existingProduct.setModel("Original Model");
-        existingProduct.setStatus("INACTIVE");
+        existingProduct.setStatus(Product.Status.STOCK);
         existingProduct.setUserId("original-user");
 
         Product updatedProduct = new Product();
@@ -130,24 +126,25 @@ class ProductControllerIntegrationTest {
         updatedProduct.setType("Original Type");
         updatedProduct.setBrand("Original Brand");
         updatedProduct.setModel("Original Model");
-        updatedProduct.setStatus("INACTIVE");
+        updatedProduct.setStatus(Product.Status.INACTIVE);
         updatedProduct.setUserId("original-user");
 
         when(productRepository.findById(testId)).thenReturn(Optional.of(existingProduct));
         when(productRepository.save(any(Product.class))).thenReturn(updatedProduct);
 
         // Act & Assert
-        mockMvc.perform(patch("/api/products/{id}", testIdString)
+        mockMvc.perform(patch("/products/{id}", testIdString)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name", is("Updated Product")))
-                .andExpect(jsonPath("$.description", is("Original Description")));
+                .andExpect(jsonPath("$.description", is("Original Description")))
+                .andExpect(jsonPath("$.status", is(Product.Status.INACTIVE.name())));
     }
 
     @Test
-    @DisplayName("DELETE /api/products/{id} with valid ID – should return 204 No Content")
+    @DisplayName("DELETE /products/{id} with valid ID – should return 204 No Content")
     void deleteProduct_ShouldReturnNoContent() throws Exception {
         // Arrange
         UUID testId = UUID.randomUUID();
@@ -156,15 +153,15 @@ class ProductControllerIntegrationTest {
         when(productRepository.existsById(testId)).thenReturn(true);
 
         // Act & Assert
-        mockMvc.perform(delete("/api/products/{id}", testIdString))
+        mockMvc.perform(delete("/products/{id}", testIdString))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    @DisplayName("DELETE /api/products/{id} with invalid UUID – should return 400 Bad Request")
+    @DisplayName("DELETE /products/{id} with invalid UUID – should return 400 Bad Request")
     void deleteProduct_WithInvalidId_ShouldReturnNotFound() throws Exception {
         // Act & Assert
-        mockMvc.perform(delete("/api/products/{id}", "invalid-uuid"))
+        mockMvc.perform(delete("/products/{id}", "invalid-uuid"))
                 .andExpect(status().isBadRequest());
     }
 }

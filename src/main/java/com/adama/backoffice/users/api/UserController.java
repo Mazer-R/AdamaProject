@@ -3,7 +3,7 @@ package com.adama.backoffice.users.api;
 import com.adama.backoffice.users.entity.User;
 import com.adama.backoffice.users.mapper.UserMapper;
 import com.adama.backoffice.users.repository.UserRepository;
-import com.adama.backoffice.users.service.JwtService;
+import com.adama.backoffice.security.service.JwtService;
 import com.adama.user.api.UserApi;
 import com.adama.user.model.*;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -41,7 +41,7 @@ public class UserController implements UserApi {
 
     @Override
     @PostMapping("/users")
-    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
     public ResponseEntity<UserResponse> createUser(
             @Parameter(name = "UserRequest", description = "", required = true)
             @Valid @RequestBody UserRequest userRequest) {
@@ -56,8 +56,8 @@ public class UserController implements UserApi {
 
     @Override
     @DeleteMapping("/users/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteUser(String id) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         try {
             UUID uuid = UUID.fromString(id);
             if (userRepository.existsById(uuid)) {
@@ -80,7 +80,7 @@ public class UserController implements UserApi {
 
     @Override
     @GetMapping("/users/{id}")
-    public ResponseEntity<UserResponse> getUserById(String id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable String id) {
         try {
             UUID uuid = UUID.fromString(id);
             Optional<User> optionalUser = userRepository.findById(uuid);
@@ -133,6 +133,7 @@ public class UserController implements UserApi {
 
     @Override
     @PatchMapping("/users/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable("id") String id,
             @Valid @RequestBody UserPatchRequest userPatchRequest) {

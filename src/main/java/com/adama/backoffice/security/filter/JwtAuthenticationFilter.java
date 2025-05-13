@@ -1,9 +1,10 @@
-package com.adama.backoffice.users.filter;
-import com.adama.backoffice.users.service.JwtService;
+package com.adama.backoffice.security.filter;
+import com.adama.backoffice.security.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,7 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -34,7 +35,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
+        log.debug("Auth header: {}", authHeader);
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.debug("No Bearer token found, continuing without authentication.");
             filterChain.doFilter(request, response);
             return;
         }
@@ -45,20 +49,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
-            // Obtener el rol del JWT
             String role = jwtService.extractRole(jwt);
+            log.debug("Extracted role from JWT: {}", role);
 
-            // Crear autoridades correctamente
             List<GrantedAuthority> authorities = new ArrayList<>();
             if (role != null) {
-                authorities.add(new SimpleGrantedAuthority("ROLE_" + role)); // Prefijar aquí
+                authorities.add(new SimpleGrantedAuthority(role));
             }
 
-            if (jwtService.validateToken(jwt, userDetails)) {
+            if (jwtService.validateToken(jwt)) {
+                log.debug("JWT is valid. Setting authentication in context.");
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
-                        authorities // Usar las autoridades del JWT
+                        authorities
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);

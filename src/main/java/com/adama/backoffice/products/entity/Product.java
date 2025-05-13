@@ -15,6 +15,14 @@ import java.util.UUID;
 @Getter
 @Entity
 public class Product {
+    public enum Status{
+        STOCK,
+        ASSIGNED,
+        ON_REPAIR,
+        PENDING,
+        INACTIVE
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -24,10 +32,8 @@ public class Product {
     private String type;
     private String brand;
     private String model;
-    private String status;
+    private Status status;
     private String userId;
-    private LocalDateTime created;
-    private LocalDateTime lastModified;
-    private String modifiedBy;
-
+    private String created;
+    private String lastModified;
 }

@@ -190,7 +190,7 @@ components:
           type: string
         role:
           type: string
-          enum: [ ADMIN, USER, WAREHOUSE, MANAGER ]
+          enum: [ ROLE_ADMIN, ROLE_USER, ROLE_WAREHOUSE, ROLE_MANAGER ]
 
     UserPatchRequest:
       type: object

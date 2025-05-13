@@ -6,6 +6,7 @@ import com.adama.product.model.ProductResponse;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,25 +18,23 @@ class ProductMapperTest {
         // Arrange
         ProductRequest request = new ProductRequest();
         request.setName("Test Product");
-        request.setDescription("Test Description");
         request.setType("Test Type");
         request.setBrand("Test Brand");
-        request.setStatus("ACTIVE");
-        request.setUserId("user123");
+        request.setModel("Test Model");
+        request.setDescription("Optional Description");
 
         // Act
         Product product = ProductMapper.toEntity(request);
 
         // Assert
         assertEquals("Test Product", product.getName());
-        assertEquals("Test Description", product.getDescription());
         assertEquals("Test Type", product.getType());
         assertEquals("Test Brand", product.getBrand());
-        assertEquals("ACTIVE", product.getStatus());
-        assertEquals("user123", product.getUserId());
+        assertEquals(Product.Status.STOCK, product.getStatus());
+        assertEquals("Test Model", product.getModel());
+        assertEquals("Optional Description", product.getDescription());
         assertNotNull(product.getCreated());
         assertNotNull(product.getLastModified());
-        assertEquals("SYSTEM", product.getModifiedBy());
     }
 
     @Test
@@ -48,12 +47,11 @@ class ProductMapperTest {
         product.setDescription("Test Description");
         product.setType("Test Type");
         product.setBrand("Test Brand");
-        product.setStatus("ACTIVE");
-        product.setUserId("user123");
+        product.setModel("Test Model");
+        product.setStatus(Product.Status.STOCK);
         LocalDateTime now = LocalDateTime.now();
-        product.setCreated(now);
-        product.setLastModified(now);
-        product.setModifiedBy("test-user");
+        product.setCreated(now.toString());
+        product.setLastModified(now.toString());
 
         // Act
         ProductResponse response = ProductMapper.toResponse(product);
@@ -64,7 +62,6 @@ class ProductMapperTest {
         assertEquals("Test Description", response.getDescription());
         assertEquals("Test Type", response.getType());
         assertEquals("Test Brand", response.getBrand());
-        assertEquals("ACTIVE", response.getStatus());
-        assertEquals("user123", response.getUserId());
+        assertEquals("Test Model", response.getModel());
     }
 }

@@ -1,4 +1,4 @@
-package com.adama.backoffice.users.service;
+package com.adama.backoffice.security.service;
 
 import com.adama.backoffice.users.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;

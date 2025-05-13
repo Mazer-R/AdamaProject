@@ -10,7 +10,9 @@ import com.adama.product.model.ProductResponse;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -20,7 +22,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api")
 public class ProductController implements ProductApi {
 
     private final ProductRepository productRepository;
@@ -31,6 +32,8 @@ public class ProductController implements ProductApi {
     }
 
     @Override
+    @PostMapping("/products")
+    @PreAuthorize("hasAnyRole('ROLE_WAREHOUSE', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     public ResponseEntity<ProductResponse> createProduct(
             @Parameter(name = "ProductRequest", description = "", required = true)
             @Valid @RequestBody ProductRequest productRequest) {
@@ -43,7 +46,9 @@ public class ProductController implements ProductApi {
 
 
     @Override
-    public ResponseEntity<Void> deleteProduct(String id) {
+    @DeleteMapping("products/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
+    public ResponseEntity<Void> deleteProduct(@PathVariable String id) {
         try {
             UUID uuid = UUID.fromString(id);
             if (productRepository.existsById(uuid)) {
@@ -81,7 +86,8 @@ public class ProductController implements ProductApi {
     }
 
     @Override
-    public ResponseEntity<ProductResponse> getProductById(String id) {
+    @GetMapping("products/{id}")
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable String id) {
         try {
             UUID uuid = UUID.fromString(id);
             Optional<Product> optionalProduct = productRepository.findById(uuid);
@@ -98,6 +104,8 @@ public class ProductController implements ProductApi {
     }
 
     @Override
+    @PatchMapping("products/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_WAREHOUSE', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     public ResponseEntity<ProductResponse> updateProduct(
             @PathVariable("id") String id,
             @Valid @RequestBody ProductPatchRequest productPatchRequest) {
@@ -118,13 +126,13 @@ public class ProductController implements ProductApi {
             if (productPatchRequest.getDescription() != null) product.setDescription(productPatchRequest.getDescription());
             if (productPatchRequest.getType() != null) product.setType(productPatchRequest.getType());
             if (productPatchRequest.getBrand() != null) product.setBrand(productPatchRequest.getBrand());
+            if (productPatchRequest.getStatus() != null)     product.setStatus(Product.Status.valueOf(productPatchRequest.getStatus().getValue()));
             if (productPatchRequest.getModel() != null) product.setModel(productPatchRequest.getModel());
-            if (productPatchRequest.getStatus() != null) product.setStatus(productPatchRequest.getStatus());
+            if (productPatchRequest.getStatus() != null) product.setStatus(product.getStatus());
             if (productPatchRequest.getUserId() != null) product.setUserId(productPatchRequest.getUserId());
 
             // Update metadata
-            product.setLastModified(LocalDateTime.now());
-            product.setModifiedBy("SYSTEM");
+            product.setLastModified(LocalDateTime.now().toString());
 
             // Save the updated product
             productRepository.save(product);

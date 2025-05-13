@@ -1,4 +1,4 @@
-package com.adama.backoffice.users.service;
+package com.adama.backoffice.security.service;
 import com.adama.backoffice.users.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HexFormat;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -22,14 +23,14 @@ public class JwtService {
     private Long expiration;
 
     private SecretKey getSigningKey() {
+//        byte[] keyBytes = HexFormat.of().parseHex(secret); // Decodificar HEX
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         if (userDetails instanceof User) {
-            claims.put("role", "ROLE_" + ((User) userDetails).getRole());
-        }
+            claims.put("role", ((User) userDetails).getRole().name());        }
         return Jwts.builder()
                 .claims(claims)
                 .subject(userDetails.getUsername())
@@ -39,9 +40,13 @@ public class JwtService {
                 .compact();
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    public Boolean validateToken(String token) {
+        try {
+            Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 
     private Boolean isTokenExpired(String token) {

@@ -27,9 +27,9 @@ public class UserMapper {
         response.setSupervisorId(entity.getSupervisorId());
         response.setRole(entity.getRole().name());
         if (entity.getCreated() != null)
-            response.setCreated(entity.getCreated().toString());
+            response.setCreated(entity.getCreated());
         if (entity.getLastModified() != null) {
-            response.setLastModified(entity.getLastModified().toString());
+            response.setLastModified(entity.getLastModified());
         }
         response.setModifiedBy(entity.getModifiedBy());
         return response;

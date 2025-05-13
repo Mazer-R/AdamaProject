@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.time.LocalTime.now;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -42,12 +43,12 @@ class ProductControllerTest {
         testProduct = new Product();
         testProduct.setId(testId);
         testProduct.setName("Test Product");
-        testProduct.setDescription("Test Description");
         testProduct.setType("Test Type");
         testProduct.setBrand("Test Brand");
         testProduct.setModel("Test Model");
-        testProduct.setStatus("ACTIVE");
-        testProduct.setUserId("user123");
+        testProduct.setStatus(Product.Status.STOCK);
+        testProduct.setCreated(now().toString());
+        testProduct.setLastModified(now().toString());
     }
 
     @Test
@@ -56,12 +57,9 @@ class ProductControllerTest {
         // Arrange
         ProductRequest request = new ProductRequest();
         request.setName("Test Product");
-        request.setDescription("Test Description");
         request.setType("Test Type");
         request.setBrand("Test Brand");
         request.setModel("Test Model");
-        request.setStatus("ACTIVE");
-        request.setUserId("user123");
 
         when(productRepository.save(any(Product.class))).thenReturn(testProduct);
 
@@ -151,7 +149,7 @@ class ProductControllerTest {
         updatedProduct.setType("Test Type");
         updatedProduct.setBrand("Test Brand");
         updatedProduct.setModel("Updated Model");
-        updatedProduct.setStatus("ACTIVE");
+        updatedProduct.setStatus(Product.Status.STOCK);
         updatedProduct.setUserId("user123");
 
         when(productRepository.findById(testId)).thenReturn(Optional.of(testProduct));

@@ -25,7 +25,10 @@ public class User implements UserDetails {
 
     private String lastModified;
     public enum Role {
-        ADMIN, USER, WAREHOUSE, MANAGER
+        ROLE_ADMIN,
+        ROLE_USER,
+        ROLE_WAREHOUSE,
+        ROLE_MANAGER
     }
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -49,7 +52,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + this.role));
+        return List.of(new SimpleGrantedAuthority(this.role.name()));
     }
 
     @Override

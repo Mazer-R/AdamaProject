@@ -47,14 +47,11 @@ class ProductApiFullIntegrationTest {
     void createAndGetProduct_ShouldWorkEndToEnd() throws Exception {
         ProductRequest request = new ProductRequest();
         request.setName("Integration Test Product");
-        request.setDescription("Integration Test Description");
         request.setType("Integration Test Type");
         request.setBrand("Integration Test Brand");
         request.setModel("Integration Test Model");
-        request.setStatus("ACTIVE");
-        request.setUserId("integration-user");
 
-        String responseJson = mockMvc.perform(post("/api/products")
+        String responseJson = mockMvc.perform(post("/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -69,7 +66,7 @@ class ProductApiFullIntegrationTest {
         assertEquals(1, productRepository.count());
 
         // Get all products
-        mockMvc.perform(get("/api/products"))
+        mockMvc.perform(get("/products"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -85,7 +82,7 @@ class ProductApiFullIntegrationTest {
         product.setType("Original Type");
         product.setBrand("Original Brand");
         product.setModel("Original Model");
-        product.setStatus("INACTIVE");
+        product.setStatus(Product.Status.STOCK);
         product.setUserId("original-user");
         product = productRepository.save(product);
         String productId = product.getId().toString();
@@ -93,19 +90,19 @@ class ProductApiFullIntegrationTest {
         // Update the product via API
         ProductPatchRequest patchRequest = new ProductPatchRequest();
         patchRequest.setName("Updated Name");
-        patchRequest.setStatus("ACTIVE");
+        patchRequest.setStatus(ProductPatchRequest.StatusEnum.valueOf(Product.Status.PENDING.name()));
 
-        mockMvc.perform(patch("/api/products/{id}", productId)
+        mockMvc.perform(patch("/products/{id}", productId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(patchRequest)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name", is("Updated Name")))
-                .andExpect(jsonPath("$.status", is("ACTIVE")));
+                .andExpect(jsonPath("$.status", is("PENDING")));
 
         Product updatedProduct = productRepository.findById(UUID.fromString(productId)).orElseThrow();
         assertEquals("Updated Name", updatedProduct.getName());
-        assertEquals("ACTIVE", updatedProduct.getStatus());
+        assertEquals(Product.Status.PENDING, updatedProduct.getStatus());
         assertEquals("Original Description", updatedProduct.getDescription()); // Unchanged fields should remain the same
     }
 
@@ -118,12 +115,12 @@ class ProductApiFullIntegrationTest {
         product.setType("Test Type");
         product.setBrand("Test Brand");
         product.setModel("Test Model");
-        product.setStatus("ACTIVE");
+        product.setStatus(Product.Status.STOCK);
         product.setUserId("test-user");
         product = productRepository.save(product);
         String productId = product.getId().toString();
 
-        mockMvc.perform(delete("/api/products/{id}", productId))
+        mockMvc.perform(delete("/products/{id}", productId))
                 .andExpect(status().isNoContent());
 
         assertTrue(productRepository.findById(UUID.fromString(productId)).isEmpty());

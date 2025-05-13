@@ -1,4 +1,4 @@
-package com.adama.backoffice.users.filter;
+package com.adama.backoffice.security.filter;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
