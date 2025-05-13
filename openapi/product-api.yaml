@@ -5,7 +5,7 @@ info:
   description: CRUD API for managing products
 
 servers:
-  - url: http://localhost:8080/api
+  - url: http://localhost:8080/
 
 paths:
   /products:
@@ -125,12 +125,9 @@ components:
       type: object
       required:
         - name
-        - description
         - type
         - brand
         - model
-        - status
-        - userId
       properties:
         name:
           type: string
@@ -141,8 +138,6 @@ components:
         brand:
           type: string
         model:
-          type: string
-        status:
           type: string
         userId:
           type: string
@@ -162,6 +157,7 @@ components:
           type: string
         status:
           type: string
+          enum: [STOCK, ASSIGNED, ON_REPAIR, PENDING, INACTIVE]
         userId:
           type: string
 
@@ -182,13 +178,10 @@ components:
           type: string
         status:
           type: string
+          enum: [STOCK, ASSIGNED, ON_REPAIR, PENDING, INACTIVE]
         userId:
           type: string
         created:
           type: string
-          format: date-time
         lastModified:
-          type: string
-          format: date-time
-        modifiedBy:
           type: string

@@ -5,13 +5,23 @@ info:
   description: CRUD API for managing users
 
 servers:
-  - url: http://localhost:8080/api
+  - url: http://localhost:8080/
 
 paths:
   /users:
     get:
-      summary: Get all users
+      summary: Get all users (optionally filtered by role)
       operationId: getAllUsers
+      tags:
+        - User
+      parameters:
+        - in: query
+          name: role
+          required: false
+          schema:
+            type: string
+            enum: [ROLE_ADMIN, ROLE_USER, ROLE_WAREHOUSE, ROLE_MANAGER]
+          description: Optional role to filter users
       responses:
         '200':
           description: List of users
@@ -24,6 +34,8 @@ paths:
     post:
       summary: Create a new user
       operationId: createUser
+      tags:
+        - User
       requestBody:
         required: true
         content:
@@ -38,10 +50,32 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserResponse'
 
+
   /users/{id}:
+    get:
+      summary: Get a user by id
+      operationId: getUserById
+      tags:
+        - User
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
     patch:
       summary: Update user fields
       operationId: updateUser
+      tags:
+        - User
       parameters:
         - in: path
           name: id
@@ -65,6 +99,8 @@ paths:
     delete:
       summary: Delete a user
       operationId: deleteUser
+      tags:
+        - User
       parameters:
         - in: path
           name: id
@@ -75,30 +111,190 @@ paths:
         '204':
           description: User deleted successfully
 
+  /users/usernames:
+    get:
+      summary: Get all usernames
+      operationId: getAllUsernames
+      tags:
+        - User
+      responses:
+        '200':
+          description: List of usernames
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+      security:
+        - BearerAuth: [ ]
+
+  /users/username/{username}:
+    get:
+      summary: Get a user by username
+      operationId: getUserByUsername
+      tags:
+        - User
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /users/role:
+    get:
+      summary: Get current user's role
+      operationId: getMyRole
+      tags:
+        - User
+      responses:
+        '200':
+          description: Successfully retrieved current user's role
+          content:
+            application/json:
+              schema:
+                type: string
+                enum: [ROLE_ADMIN, ROLE_USER, ROLE_WORKER, ROLE_MANAGER]
+                example: ROLE_USER
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - BearerAuth: []
+
+  /users/myid:
+    get:
+      summary: Get current user's id
+      operationId: getMyId
+      tags:
+        - User
+
+      responses:
+        '200':
+          description: Successfully retrieved current user's id
+          content:
+            application/json:
+              schema:
+                type: string
+
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - BearerAuth: [ ]
+
+
+  /users/myManager:
+    get:
+      summary: Get current user's manager
+      operationId: getMyManager
+      tags:
+        - User
+
+      responses:
+        '200':
+          description: Successfully retrieved current user's manager
+          content:
+            application/json:
+              schema:
+                type: string
+
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - BearerAuth: [ ]
+
+
+  /auth/login:
+    post:
+      summary: Authenticate user
+      operationId: login
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '401':
+          description: Invalid credentials
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    UnauthorizedError:
+      description: Missing or invalid authentication
+
   schemas:
     UserRequest:
       type: object
       required:
-        - name
+        - username
+        - password
+        - firstName
+        - lastName
         - department
-        - supervisorId
+        - role
       properties:
-        name:
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+        firstName:
+          type: string
+        lastName:
           type: string
         department:
           type: string
-        supervisorId:
+        managerId:
           type: string
+        role:
+          type: string
+          enum: [ ROLE_ADMIN, ROLE_USER, ROLE_WAREHOUSE, ROLE_MANAGER ]
 
     UserPatchRequest:
       type: object
       properties:
-        name:
+        password:
+          type: string
+          format: password
+        firstName:
+          type: string
+        lastName:
           type: string
         department:
           type: string
-        supervisorId:
+        managerId:
+          type: string
+        role:
           type: string
 
     UserResponse:
@@ -106,19 +302,23 @@ components:
       properties:
         id:
           type: string
-        name:
+        username:
           type: string
-        dni:
+        firstName:
+          type: string
+        lastName:
           type: string
         department:
           type: string
-        supervisorId:
+        managerId:
+          type: string
+        role:
           type: string
         created:
           type: string
-          format: date-time
         lastModified:
           type: string
-          format: date-time
         modifiedBy:
           type: string
+
+

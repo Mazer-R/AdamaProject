@@ -1,10 +1,8 @@
 package com.adama.backoffice.products.mapper;
 
-
 import com.adama.backoffice.products.entity.Product;
 import com.adama.product.model.ProductRequest;
 import com.adama.product.model.ProductResponse;
-
 import java.time.LocalDateTime;
 
 public class ProductMapper {
@@ -16,11 +14,10 @@ public class ProductMapper {
         product.setType(request.getType());
         product.setBrand(request.getBrand());
         product.setModel(request.getModel());
-        product.setStatus(request.getStatus());
+        product.setStatus(Product.Status.STOCK);
         product.setUserId(request.getUserId());
-        product.setCreated(LocalDateTime.now());
-        product.setLastModified(LocalDateTime.now());
-        product.setModifiedBy("SYSTEM");
+        product.setCreated(LocalDateTime.now().toString());
+        product.setLastModified(LocalDateTime.now().toString());
         return product;
     }
 
@@ -32,8 +29,10 @@ public class ProductMapper {
         response.setType(entity.getType());
         response.setBrand(entity.getBrand());
         response.setModel(entity.getModel());
-        response.setStatus(entity.getStatus());
+        response.setStatus(ProductResponse.StatusEnum.valueOf(entity.getStatus().name()));
         response.setUserId(entity.getUserId());
+        response.setCreated(entity.getCreated());
+        response.setLastModified(entity.getLastModified());
         return response;
     }
 }
