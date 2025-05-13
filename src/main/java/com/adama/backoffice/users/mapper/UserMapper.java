@@ -1,10 +1,8 @@
 package com.adama.backoffice.users.mapper;
 
 import com.adama.backoffice.users.entity.User;
-import com.adama.backoffice.users.repository.UserRepository;
 import com.adama.user.model.UserRequest;
 import com.adama.user.model.UserResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
