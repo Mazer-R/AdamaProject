@@ -1,10 +1,19 @@
 package com.adama.backoffice.products.api;
 
+import static java.time.LocalTime.now;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.adama.backoffice.products.entity.Product;
 import com.adama.backoffice.products.repository.ProductRepository;
 import com.adama.product.model.ProductPatchRequest;
 import com.adama.product.model.ProductRequest;
 import com.adama.product.model.ProductResponse;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,16 +23,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static java.time.LocalTime.now;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProductControllerTest {
@@ -118,6 +117,7 @@ class ProductControllerTest {
         assertEquals("Test Product", response.getBody().getFirst().getName());
         verify(productRepository).findAll();
     }
+
     @Test
     @DisplayName("GET getProducts – with only type returns filtered products")
     void getProducts_WithOnlyType_ReturnsFilteredByType() {
@@ -131,7 +131,6 @@ class ProductControllerTest {
         assertEquals("Test Type", response.getBody().getFirst().getType());
         verify(productRepository).findByType(type);
     }
-
 
     @Test
     @DisplayName("PATCH updateProduct with valid ID – should return updated product and 200 OK")
@@ -200,6 +199,7 @@ class ProductControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verifyNoInteractions(productRepository);
     }
+
     @Test
     @DisplayName("GET getProductById with valid ID-should return  200 OK")
     void getProductById_ValidExistingId_ReturnsProduct() {
@@ -211,6 +211,7 @@ class ProductControllerTest {
         assertEquals(testProduct.getName(), response.getBody().getName());
         assertEquals(testProduct.getModel(), response.getBody().getModel());
     }
+
     @Test
     @DisplayName("GET getProductById with invalid ID – return 404 Not Found")
     void getProductById_InvalidId_ReturnsNotFound() {
@@ -219,5 +220,4 @@ class ProductControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verifyNoInteractions(productRepository);
     }
-
-   }
+}

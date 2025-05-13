@@ -1,6 +1,9 @@
 package com.adama.backoffice.users.entity;
 
 import jakarta.persistence.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -8,12 +11,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
-
 @Entity
-@Table(name="app_user")
+@Table(name = "app_user")
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
@@ -21,15 +20,18 @@ public class User implements UserDetails {
     private String created;
 
     private String lastModified;
+
     public enum Role {
         ROLE_ADMIN,
         ROLE_USER,
         ROLE_WAREHOUSE,
         ROLE_MANAGER
     }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
     @Column(unique = true, nullable = false)
     private String username;
 
@@ -43,9 +45,8 @@ public class User implements UserDetails {
     private String firstName;
     private String lastName;
     private String department;
-    private String supervisorId;
+    private String managerId;
     private String modifiedBy;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -81,5 +82,4 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }

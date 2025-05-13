@@ -3,6 +3,7 @@ package com.adama.backoffice.security.config;
 import com.adama.backoffice.security.filter.JwtAuthEntryPoint;
 import com.adama.backoffice.security.filter.JwtAuthenticationFilter;
 import com.adama.backoffice.security.service.JwtService;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -21,8 +22,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -31,9 +30,11 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtService jwtService;
 
-    public SecurityConfig(JwtAuthEntryPoint authEntryPoint,
-                          UserDetailsService userDetailsService,
-                          JwtService jwtService, Environment environment) {
+    public SecurityConfig(
+            JwtAuthEntryPoint authEntryPoint,
+            UserDetailsService userDetailsService,
+            JwtService jwtService,
+            Environment environment) {
         this.authEntryPoint = authEntryPoint;
         this.userDetailsService = userDetailsService;
         this.jwtService = jwtService;
@@ -42,20 +43,19 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
+        http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(authEntryPoint))
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
-                    //Seguridad desactivada para perfiles test
+                    // Seguridad desactivada para perfiles test
                     if (List.of(environment.getActiveProfiles()).contains("test")) {
                         auth.anyRequest().permitAll();
                     } else {
-                        auth.requestMatchers("/auth/login", "/actuator/health", "/error").permitAll()
-                                .anyRequest().authenticated(); // Seguridad normal en otros entornos
+                        auth.requestMatchers("/auth/login", "/actuator/health", "/error")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated(); // Seguridad normal en otros entornos
                     }
                 })
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -69,8 +69,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -78,6 +78,7 @@ public class SecurityConfig {
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(jwtService, userDetailsService);
     }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -90,5 +91,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-
 }

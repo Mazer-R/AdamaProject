@@ -1,14 +1,13 @@
 package com.adama.backoffice.products.mapper;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.adama.backoffice.products.entity.Product;
 import com.adama.product.model.ProductRequest;
 import com.adama.product.model.ProductResponse;
-import org.junit.jupiter.api.Test;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class ProductMapperTest {
 

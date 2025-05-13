@@ -1,10 +1,21 @@
 package com.adama.backoffice.products.api;
 
+import static java.time.LocalTime.now;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.adama.backoffice.products.entity.Product;
 import com.adama.backoffice.products.repository.ProductRepository;
 import com.adama.product.model.ProductPatchRequest;
 import com.adama.product.model.ProductRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,18 +27,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Collections;
-import java.util.Optional;
-import java.util.UUID;
-
-import static java.time.LocalTime.now;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Integration tests for the ProductController.
@@ -43,7 +42,6 @@ class ProductControllerIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
 
     @MockitoBean
     private ProductRepository productRepository;
@@ -87,8 +85,8 @@ class ProductControllerIntegrationTest {
 
         // Act & Assert
         mockMvc.perform(post("/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name", is("Test Product")))
@@ -133,8 +131,8 @@ class ProductControllerIntegrationTest {
 
         // Act & Assert
         mockMvc.perform(patch("/products/{id}", testIdString)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name", is("Updated Product")))
@@ -152,15 +150,13 @@ class ProductControllerIntegrationTest {
         when(productRepository.existsById(testId)).thenReturn(true);
 
         // Act & Assert
-        mockMvc.perform(delete("/products/{id}", testIdString))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/products/{id}", testIdString)).andExpect(status().isNoContent());
     }
 
     @Test
     @DisplayName("DELETE /products/{id} with invalid UUID – should return 400 Bad Request")
     void deleteProduct_WithInvalidId_ShouldReturnNotFound() throws Exception {
         // Act & Assert
-        mockMvc.perform(delete("/products/{id}", "invalid-uuid"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(delete("/products/{id}", "invalid-uuid")).andExpect(status().isBadRequest());
     }
 }

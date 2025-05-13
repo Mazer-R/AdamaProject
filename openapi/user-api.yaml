@@ -10,10 +10,18 @@ servers:
 paths:
   /users:
     get:
-      summary: Get all users
+      summary: Get all users (optionally filtered by role)
       operationId: getAllUsers
       tags:
         - User
+      parameters:
+        - in: query
+          name: role
+          required: false
+          schema:
+            type: string
+            enum: [ROLE_ADMIN, ROLE_USER, ROLE_WAREHOUSE, ROLE_MANAGER]
+          description: Optional role to filter users
       responses:
         '200':
           description: List of users
@@ -42,6 +50,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserResponse'
 
+
   /users/{id}:
     get:
       summary: Get a user by id
@@ -61,27 +70,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
-
-  /users/me/role:
-    get:
-      summary: Get current user's role
-      operationId: getMyRole
-      tags:
-        - User
-
-      responses:
-        '200':
-          description: Successfully retrieved current user's role
-          content:
-            application/json:
-              schema:
-                type: string
-                enum: [ROLE_ADMIN, ROLE_USER, ROLE_WORKER, ROLE_MANAGER]
-                example: ROLE_USER
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-      security:
-        - BearerAuth: []
 
     patch:
       summary: Update user fields
@@ -122,6 +110,106 @@ paths:
       responses:
         '204':
           description: User deleted successfully
+
+  /users/usernames:
+    get:
+      summary: Get all usernames
+      operationId: getAllUsernames
+      tags:
+        - User
+      responses:
+        '200':
+          description: List of usernames
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+      security:
+        - BearerAuth: [ ]
+
+  /users/username/{username}:
+    get:
+      summary: Get a user by username
+      operationId: getUserByUsername
+      tags:
+        - User
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /users/role:
+    get:
+      summary: Get current user's role
+      operationId: getMyRole
+      tags:
+        - User
+      responses:
+        '200':
+          description: Successfully retrieved current user's role
+          content:
+            application/json:
+              schema:
+                type: string
+                enum: [ROLE_ADMIN, ROLE_USER, ROLE_WORKER, ROLE_MANAGER]
+                example: ROLE_USER
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - BearerAuth: []
+
+  /users/myid:
+    get:
+      summary: Get current user's id
+      operationId: getMyId
+      tags:
+        - User
+
+      responses:
+        '200':
+          description: Successfully retrieved current user's id
+          content:
+            application/json:
+              schema:
+                type: string
+
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - BearerAuth: [ ]
+
+
+  /users/myManager:
+    get:
+      summary: Get current user's manager
+      operationId: getMyManager
+      tags:
+        - User
+
+      responses:
+        '200':
+          description: Successfully retrieved current user's manager
+          content:
+            application/json:
+              schema:
+                type: string
+
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - BearerAuth: [ ]
+
 
   /auth/login:
     post:
@@ -186,7 +274,7 @@ components:
           type: string
         department:
           type: string
-        supervisorId:
+        managerId:
           type: string
         role:
           type: string
@@ -204,7 +292,7 @@ components:
           type: string
         department:
           type: string
-        supervisorId:
+        managerId:
           type: string
         role:
           type: string
@@ -222,7 +310,7 @@ components:
           type: string
         department:
           type: string
-        supervisorId:
+        managerId:
           type: string
         role:
           type: string

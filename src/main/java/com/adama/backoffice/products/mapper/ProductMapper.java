@@ -1,10 +1,8 @@
 package com.adama.backoffice.products.mapper;
 
-
 import com.adama.backoffice.products.entity.Product;
 import com.adama.product.model.ProductRequest;
 import com.adama.product.model.ProductResponse;
-
 import java.time.LocalDateTime;
 
 public class ProductMapper {

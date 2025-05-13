@@ -1,10 +1,17 @@
 package com.adama.backoffice.products.api;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.adama.backoffice.products.entity.Product;
 import com.adama.backoffice.products.repository.ProductRepository;
 import com.adama.product.model.ProductPatchRequest;
 import com.adama.product.model.ProductRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,14 +21,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.UUID;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -52,12 +51,14 @@ class ProductApiFullIntegrationTest {
         request.setModel("Integration Test Model");
 
         String responseJson = mockMvc.perform(post("/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name", is("Integration Test Product")))
-                .andReturn().getResponse().getContentAsString();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
         String productId = objectMapper.readTree(responseJson).get("id").asText();
 
@@ -92,17 +93,19 @@ class ProductApiFullIntegrationTest {
         patchRequest.setStatus(ProductPatchRequest.StatusEnum.valueOf(Product.Status.PENDING.name()));
 
         mockMvc.perform(patch("/products/{id}", productId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(patchRequest)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(patchRequest)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name", is("Updated Name")))
                 .andExpect(jsonPath("$.status", is("PENDING")));
 
-        Product updatedProduct = productRepository.findById(UUID.fromString(productId)).orElseThrow();
+        Product updatedProduct =
+                productRepository.findById(UUID.fromString(productId)).orElseThrow();
         assertEquals("Updated Name", updatedProduct.getName());
         assertEquals(Product.Status.PENDING, updatedProduct.getStatus());
-        assertEquals("Original Description", updatedProduct.getDescription()); // Unchanged fields should remain the same
+        assertEquals(
+                "Original Description", updatedProduct.getDescription()); // Unchanged fields should remain the same
     }
 
     @Test
@@ -119,8 +122,7 @@ class ProductApiFullIntegrationTest {
         product = productRepository.save(product);
         String productId = product.getId().toString();
 
-        mockMvc.perform(delete("/products/{id}", productId))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/products/{id}", productId)).andExpect(status().isNoContent());
 
         assertTrue(productRepository.findById(UUID.fromString(productId)).isEmpty());
     }

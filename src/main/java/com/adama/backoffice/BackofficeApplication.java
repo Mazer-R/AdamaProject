@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 public class BackofficeApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(BackofficeApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(BackofficeApplication.class, args);
+    }
 }
