@@ -20,7 +20,6 @@ public class GlobalExceptionHandler {
         errorBody.put("message", ex.getMessage());
         errorBody.put("exception", ex.getClass().getSimpleName());
 
-        ex.printStackTrace(); // Opcional: imprime el stack trace completo en consola
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody);
     }

@@ -6,7 +6,6 @@ import com.adama.product.model.ProductResponse;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;

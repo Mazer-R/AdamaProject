@@ -59,7 +59,6 @@ class ProductApiFullIntegrationTest {
                 .andExpect(jsonPath("$.name", is("Integration Test Product")))
                 .andReturn().getResponse().getContentAsString();
 
-        // Extract the ID from the response
         String productId = objectMapper.readTree(responseJson).get("id").asText();
 
         // Verify the product was saved in the repository
