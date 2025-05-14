@@ -1,4 +1,4 @@
-package com.adama.backoffice.security.config;
+package com.adama.backoffice.dataDemoInit;
 
 import com.adama.backoffice.users.entity.User;
 import com.adama.backoffice.users.repository.UserRepository;
@@ -37,7 +37,7 @@ public class AdminUserInitializer implements CommandLineRunner {
             userRepository.save(admin);
             System.out.println("✅ Usuario admin creado automáticamente");
         }
-        if(existingManager.isEmpty()){
+        if (existingManager.isEmpty()) {
             User manager = new User();
             manager.setUsername(managerString);
             manager.setPassword(managerString);
@@ -45,8 +45,6 @@ public class AdminUserInitializer implements CommandLineRunner {
 
             userRepository.save(manager);
             System.out.println("✅ Usuario manager creado automáticamente");
-
         }
-
     }
 }

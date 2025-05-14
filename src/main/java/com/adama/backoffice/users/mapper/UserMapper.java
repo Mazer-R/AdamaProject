@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserMapper {
 
-
     public static User toEntity(UserRequest request) {
         User user = new User();
         user.setUsername(request.getUsername());
@@ -41,5 +40,4 @@ public class UserMapper {
         response.setModifiedBy(entity.getModifiedBy());
         return response;
     }
-
 }
