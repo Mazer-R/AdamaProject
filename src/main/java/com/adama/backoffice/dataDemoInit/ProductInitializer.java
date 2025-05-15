@@ -51,11 +51,13 @@ public class ProductInitializer implements CommandLineRunner {
         for (int i = 1; i <= 50; i++) {
             Product product = new Product();
             product.setName("Producto " + i);
+            product.setStatus(Product.Status.STOCK);
             product.setDescription("Descripción del producto " + i);
             product.setType(randomFrom(types));
             product.setBrand(randomFrom(brands));
             product.setStatus(Product.Status.STOCK);
             product.setModel("Modelo-" + i);
+
 
             productRepository.save(product);
         }
