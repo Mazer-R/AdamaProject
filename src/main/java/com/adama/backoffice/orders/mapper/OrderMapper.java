@@ -1,11 +1,11 @@
 package com.adama.backoffice.orders.mapper;
 
+import static java.time.LocalTime.now;
+
 import com.adama.backoffice.orders.entity.Order;
 import com.adama.order.model.OrderPatchRequest;
 import com.adama.order.model.OrderRequest;
 import com.adama.order.model.OrderResponse;
-
-import static java.time.LocalTime.now;
 
 public class OrderMapper {
 
@@ -39,7 +39,7 @@ public class OrderMapper {
         response.setUserId(order.getUserId());
         response.setManagerUsername(order.getManagerUsername());
         response.setStatus(OrderResponse.StatusEnum.valueOf(order.getStatus().name()));
-        response.setOrderDate(order.getOrderDate().toString());
+        response.setOrderDate(order.getOrderDate());
         if (order.getValidationDate() != null)
             response.setValidationDate(order.getValidationDate().toString());
         if (order.getFulfillmentDate() != null)

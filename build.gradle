@@ -34,9 +34,12 @@ idea {
 		sourceDirs += file("$buildDir/generated/product-api-server/src/main/java")
 		sourceDirs += file("$buildDir/generated/user-api-server/src/main/java")
 		sourceDirs += file("$buildDir/generated/order-api-server/src/main/java")
+		sourceDirs += file("$buildDir/generated/message-api-server/src/main/java")
 		generatedSourceDirs += file("$buildDir/generated/product-api-server/src/main/java")
 		generatedSourceDirs += file("$buildDir/generated/user-api-server/src/main/java")
 		generatedSourceDirs += file("$buildDir/generated/order-api-server/src/main/java")
+		generatedSourceDirs += file("$buildDir/generated/message-api-server/src/main/java")
+
 	}
 }
 
@@ -77,6 +80,8 @@ sourceSets {
 			srcDirs += layout.buildDirectory.dir("generated/product-api-server/src/main/java").get().asFile
 			srcDirs += layout.buildDirectory.dir("generated/user-api-server/src/main/java").get().asFile
 			srcDirs += layout.buildDirectory.dir("generated/order-api-server/src/main/java").get().asFile
+			srcDirs += layout.buildDirectory.dir("generated/message-api-server/src/main/java").get().asFile
+
 		}
 	}
 }
@@ -143,8 +148,29 @@ tasks.register('generateOrderApi', GenerateTask) {
 	]
 }
 
+tasks.register('generateMessageApi', GenerateTask) {
+	group = "openapi"
+	description = "Genera código del Message API"
+	generatorName = "spring"
+	inputSpec = "$apiSpecDir/message-api.yaml".toString()
+	outputDir = layout.buildDirectory.dir("generated/message-api-server").get().asFile.absolutePath
+	apiPackage = "com.adama.message.api"
+	modelPackage = "com.adama.message.model"
+	invokerPackage = "com.adama.message.invoker"
+
+	configOptions = [
+			dateLibrary          : "java-time",
+			interfaceOnly        : "true",
+			useTags              : "true",
+			skipDefaultInterface : "true",
+			useSpringController  : "true",
+			useSpringBoot3       : "true",
+			generateBuilders     : "true"
+	]
+}
+
 // Hook the tasks into the build process
-compileJava.dependsOn generateProductApi, generateUserApi, generateOrderApi
+compileJava.dependsOn generateProductApi, generateUserApi, generateOrderApi, generateMessageApi
 
 
 tasks.build {

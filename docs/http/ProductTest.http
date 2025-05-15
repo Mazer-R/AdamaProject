@@ -38,3 +38,11 @@ DELETE http://localhost:8080/orders/{{id}}
 Authorization: Bearer {{auth_token}}
 ###GEtFUl
 GET http://localhost:8080/orders
+### patch
+PATCH http://localhost:8080/users/{{id}}
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "managerUsername": "manager"
+}

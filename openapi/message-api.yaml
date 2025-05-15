@@ -1,0 +1,231 @@
+openapi: 3.0.3
+info:
+  title: Message API
+  version: 1.0.0
+  description: API for sending, receiving, and managing messages between users.
+
+servers:
+  - url: http://localhost:8080/
+
+paths:
+  /messages:
+    get:
+      summary: Get all messages
+      operationId: getAllMessages
+      tags:
+        - Message
+      parameters:
+        - in: query
+          name: isRead
+          required: false
+          schema:
+            type: boolean
+          description: Filter by read/unread status
+        - in: query
+          name: messageType
+          required: false
+          schema:
+            type: string
+            enum: [INTERNAL, SYSTEM, NOTIFICATION]
+          description: Filter by type of message
+      responses:
+        '200':
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+
+
+    post:
+      summary: Create a new message
+      operationId: createMessage
+      tags:
+        - Message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageRequest'
+      responses:
+        '201':
+          description: Message created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+
+  /messages/unread:
+    get:
+      summary: Get unread messages for current user
+      operationId: getUnreadMessages
+      tags:
+        - Message
+      responses:
+        '200':
+          description: List of unread messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+
+
+  /messages/{id}:
+    get:
+      summary: Get message by Id
+      operationId: getMessageById
+      tags:
+        - Message
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Message found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+
+
+    patch:
+      summary: Mark Message as Read by ID
+      operationId: markAsRead
+      tags:
+        - Message
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessagePatchRequest'
+      responses:
+        '200':
+          description: Message updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Message not found
+        '500':
+          description: Server error
+
+
+  /messages/type/{type}:
+    get:
+      summary: Get messages by type
+      operationId: getMessagesByType
+      tags:
+        - Message
+      parameters:
+        - in: path
+          name: type
+          required: true
+          schema:
+            type: string
+            enum: [INTERNAL, SYSTEM, NOTIFICATION]
+      responses:
+        '200':
+          description: List of messages by type
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    MessageRequest:
+      type: object
+      required:
+        - senderId
+        - receiverId
+        - subject
+      properties:
+        senderId:
+          type: string
+        receiverId:
+          type: string
+        subject:
+          type: string
+        content:
+          type: string
+        replyTo:
+          type: string
+
+    MessagePatchRequest:
+      type: object
+      required:
+        - isRead
+      properties:
+        isRead:
+          type: boolean
+
+    MessageResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        senderUsername:
+          type: string
+        receiverUsername:
+          type: string
+        subject:
+          type: string
+        content:
+          type: string
+        isRead:
+          type: boolean
+        messageType:
+          type: string
+          enum: [INTERNAL, SYSTEM, NOTIFICATION]
+        isReply:
+          type: boolean
+        replyTo:
+          type: string
+        createdAt:
+          type: string
