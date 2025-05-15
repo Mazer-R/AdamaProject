@@ -199,7 +199,8 @@ public class UserController implements UserApi {
             if (userPatchRequest.getLastName() != null) user.setLastName(userPatchRequest.getLastName());
             if (userPatchRequest.getDepartment() != null) user.setDepartment(userPatchRequest.getDepartment());
             if (userPatchRequest.getRole() != null) user.setRole(User.Role.valueOf(userPatchRequest.getRole()));
-            if (userPatchRequest.getManagerUsername() != null) user.setManagerUsername(userPatchRequest.getManagerUsername());
+            if (userPatchRequest.getManagerUsername() != null)
+                user.setManagerUsername(userPatchRequest.getManagerUsername());
 
             user.setLastModified(LocalDateTime.now().toString());
             user.setModifiedBy("SYSTEM");

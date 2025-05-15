@@ -36,6 +36,7 @@ public class OrderService {
     public Optional<Order> validateOrder(UUID id) {
         return orderRepository.findById(id).map(order -> {
             order.setStatus(Order.Status.VALIDATED);
+
             order.setValidationDate(LocalDateTime.now().toString());
             return orderRepository.save(order);
         });

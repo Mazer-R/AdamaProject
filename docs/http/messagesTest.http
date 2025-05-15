@@ -1,0 +1,90 @@
+### 1. Login para obtener el token
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin"
+}
+
+> {%
+    client.global.set("auth_token", response.body.token);
+    client.global.set("user_id", ""); // Limpiamos variable temporal
+%}
+
+### 2. Obtener ID del usuario actual (para senderId/receiverId)
+GET http://localhost:8080/users/myid
+Authorization: Bearer {{auth_token}}
+
+> {%
+    client.global.set("user_id", response.body);
+%}
+
+### 3. Crear nuevo mensaje
+POST http://localhost:8080/messages
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "senderId": "{{user_id}}",
+  "receiverId": "c3cdf7d6-bc2b-4eac-a939-20f93691fe8e",
+  "subject": "Prueba API",
+  "content": "Este es un mensaje de prueba",
+  "replyTo": ""
+}
+
+> {%
+    client.global.set("message_id", response.body.id);
+%}
+
+### 4. Obtener todos los mensajes (sin filtros)
+GET http://localhost:8080/messages
+Authorization: Bearer {{auth_token}}
+
+### 5. Obtener mensajes no leídos
+GET http://localhost:8080/messages?isRead=false
+Authorization: Bearer {{auth_token}}
+
+### 6. Obtener mensajes por tipo
+GET http://localhost:8080/messages?messageType=INTERNAL
+Authorization: Bearer {{auth_token}}
+
+### 7. Obtener mensaje por ID
+GET http://localhost:8080/messages/{{message_id}}
+Authorization: Bearer {{auth_token}}
+
+### 8. Marcar mensaje como leído
+PATCH http://localhost:8080/messages/{{message_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "isRead": true
+}
+
+### 9. Obtener mensajes no leídos (debería estar vacío ahora)
+GET http://localhost:8080/messages/unread
+Authorization: Bearer {{auth_token}}
+
+### 10. Obtener mensajes por tipo (vía path)
+GET http://localhost:8080/messages/type/INTERNAL
+Authorization: Bearer {{auth_token}}
+
+### 11. Test de errores - Crear mensaje con senderId incorrecto
+POST http://localhost:8080/messages
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "senderId": "id-invalido",
+  "receiverId": "523599e9-2d40-44c5-b470-22fb430fae1b",
+  "subject": "Mensaje erróneo"
+}
+
+### 12. Test de errores - Obtener mensaje inexistente
+GET http://localhost:8080/messages/id-inexistente
+Authorization: Bearer {{auth_token}}
+
+### 13. Test de errores - Tipo de mensaje inválido
+GET http://localhost:8080/messages/type/INVALIDO
+Authorization: Bearer {{auth_token}}
