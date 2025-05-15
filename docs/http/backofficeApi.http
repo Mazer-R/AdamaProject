@@ -23,7 +23,7 @@ Authorization: Bearer {{auth_token}}
   "firstName": "user",
   "lastName": "userez",
   "department": "IT",
-  "role": "USER"
+  "role": "ROLE_USER"
 }
 
 ### 3. Acceso a endpoint seguro usando el mismo token
@@ -37,4 +37,4 @@ Authorization: Bearer {{auth_token}}
 
 ###5.Role
 GET http://localhost:8080/users/me/role
-Authorization: Beaarer {{auth_token}}
+Authorization: Bearer {{auth_token}}

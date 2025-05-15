@@ -274,7 +274,7 @@ components:
           type: string
         department:
           type: string
-        managerId:
+        managerUsername:
           type: string
         role:
           type: string
@@ -292,7 +292,7 @@ components:
           type: string
         department:
           type: string
-        managerId:
+        managerUsername:
           type: string
         role:
           type: string
@@ -310,7 +310,7 @@ components:
           type: string
         department:
           type: string
-        managerId:
+        managerUsername:
           type: string
         role:
           type: string

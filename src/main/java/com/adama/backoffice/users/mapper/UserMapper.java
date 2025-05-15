@@ -16,10 +16,10 @@ public class UserMapper {
         user.setLastName(request.getLastName());
         user.setDepartment(request.getDepartment());
         user.setRole(User.Role.valueOf(request.getRole().name()));
-        if (request.getManagerId() == null || request.getManagerId().isEmpty()) {
-            user.setManagerId("manager");
+        if (request.getManagerUsername() == null || request.getManagerUsername().isEmpty()) {
+            user.setManagerUsername("manager");
         } else {
-            user.setManagerId(request.getManagerId());
+            user.setManagerUsername(request.getManagerUsername());
         }
         return user;
     }
@@ -31,7 +31,7 @@ public class UserMapper {
         response.setFirstName(entity.getFirstName());
         response.setLastName(entity.getLastName());
         response.setDepartment(entity.getDepartment());
-        response.setManagerId(entity.getManagerId());
+        response.setManagerUsername(entity.getManagerUsername());
         response.setRole(entity.getRole().name());
         if (entity.getCreated() != null) response.setCreated(entity.getCreated());
         if (entity.getLastModified() != null) {

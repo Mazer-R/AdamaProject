@@ -45,7 +45,7 @@ public class User implements UserDetails {
     private String firstName;
     private String lastName;
     private String department;
-    private String managerId;
+    private String managerUsername;
     private String modifiedBy;
 
     @Override

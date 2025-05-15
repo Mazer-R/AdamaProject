@@ -1,0 +1,40 @@
+### 1. Login para obtener el token
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin"
+}
+> {%
+    // Extrae el token de la respuesta y lo guarda en variable global
+    client.global.set("auth_token", response.body.token);
+%}
+### 3. Acceso a endpoint seguro usando el mismo token
+GET http://localhost:8080/users
+Authorization: Bearer {{auth_token}}
+
+###GetProduct:
+GET http://localhost:8080/products
+Authorization: Bearer {{auth_token}}
+### Order:
+POST http://localhost:8080/orders
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "productId": "358863d6-31f4-449e-9b25-391b8502b4e2",
+  "userId": "523599e9-2d40-44c5-b470-22fb430fae1b",
+  "managerUsername": "manager"
+}
+###:Validate
+POST http://localhost:8080/orders/104bf324-8152-4a99-944a-bc20dad9af83/validate
+Authorization: Bearer {{auth_token}}
+###:Fulfill:
+POST http://localhost:8080/orders/104bf324-8152-4a99-944a-bc20dad9af83/fulfill
+Authorization: Bearer {{auth_token}}
+###delete:
+DELETE http://localhost:8080/orders/{{id}}
+Authorization: Bearer {{auth_token}}
+###GEtFUl
+GET http://localhost:8080/orders

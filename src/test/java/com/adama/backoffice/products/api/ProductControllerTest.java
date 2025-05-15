@@ -7,9 +7,11 @@ import static org.mockito.Mockito.*;
 
 import com.adama.backoffice.products.entity.Product;
 import com.adama.backoffice.products.repository.ProductRepository;
+import com.adama.backoffice.products.service.ProductService;
 import com.adama.product.model.ProductPatchRequest;
 import com.adama.product.model.ProductRequest;
 import com.adama.product.model.ProductResponse;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +28,8 @@ import org.springframework.http.ResponseEntity;
 
 @ExtendWith(MockitoExtension.class)
 class ProductControllerTest {
+    @Mock
+    private ProductService productService;
 
     @Mock
     private ProductRepository productRepository;
@@ -151,8 +155,8 @@ class ProductControllerTest {
         updatedProduct.setStatus(Product.Status.STOCK);
         updatedProduct.setUserId("user123");
 
-        when(productRepository.findById(testId)).thenReturn(Optional.of(testProduct));
-        when(productRepository.save(any(Product.class))).thenReturn(updatedProduct);
+        when(productService.updateProduct(eq(testId.toString()), any(ProductPatchRequest.class)))
+                .thenReturn(updatedProduct);
 
         // Act
         ResponseEntity<ProductResponse> response = productController.updateProduct(id, request);
@@ -162,8 +166,21 @@ class ProductControllerTest {
         assertNotNull(response.getBody());
         assertEquals("Updated Product", response.getBody().getName());
         assertEquals("Updated Model", response.getBody().getModel());
-        verify(productRepository).findById(testId);
-        verify(productRepository).save(any(Product.class));
+    }
+
+    @Test
+    @DisplayName("PATCH updateProduct with invalid ID format – should return 400 Bad Request")
+    void updateProduct_WithInvalidId_ShouldReturnBadRequest() {
+        // Arrange
+        ProductPatchRequest request = new ProductPatchRequest();
+        request.setName("Updated Product");
+
+        // Act
+        ResponseEntity<ProductResponse> response = productController.updateProduct("invalid-id", request);
+
+        // Assert
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        verifyNoInteractions(productService);
     }
 
     @Test
@@ -174,30 +191,13 @@ class ProductControllerTest {
         ProductPatchRequest request = new ProductPatchRequest();
         request.setName("Updated Product");
 
-        when(productRepository.findById(testId)).thenReturn(Optional.empty());
+        when(productService.updateProduct(eq(id), any(ProductPatchRequest.class)))
+                .thenThrow(new EntityNotFoundException("Product not found"));
 
-        // Act
         ResponseEntity<ProductResponse> response = productController.updateProduct(id, request);
 
-        // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        verify(productRepository).findById(testId);
         verify(productRepository, never()).save(any(Product.class));
-    }
-
-    @Test
-    @DisplayName("PATCH updateProduct with invalid ID format – should return 400 Bad Request")
-    void updateProduct_WithInvalidId_ShouldReturnNotFound() {
-        // Arrange
-        ProductPatchRequest request = new ProductPatchRequest();
-        request.setName("Updated Product");
-
-        // Act
-        ResponseEntity<ProductResponse> response = productController.updateProduct("invalid-id", request);
-
-        // Assert
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        verifyNoInteractions(productRepository);
     }
 
     @Test

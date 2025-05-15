@@ -1,0 +1,284 @@
+openapi: 3.0.3
+info:
+  title: Order API
+  version: 1.0.0
+  description: CRUD API for managing orders
+
+servers:
+  - url: http://localhost:8080/
+
+paths:
+  /orders:
+    get:
+      summary: Get all orders
+      operationId: getAllOrders
+      tags:
+        - Order
+      responses:
+        '200':
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderResponse'
+    post:
+      summary: Create a new order
+      operationId: createOrder
+      tags:
+        - Order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+
+  /orders/{id}:
+    get:
+      summary: Get an order by ID
+      operationId: getOrderById
+      tags:
+        - Order
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+
+    patch:
+      summary: Update fields of an order
+      operationId: updateOrder
+      tags:
+        - Order
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderPatchRequest'
+      responses:
+        '200':
+          description: Order updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+
+    delete:
+      summary: Delete an order
+      operationId: deleteOrder
+      tags:
+        - Order
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Order deleted successfully
+
+  /orders/status/ordered:
+    get:
+      summary: Get all orders with status "ordered"
+      operationId: getOrderedOrders
+      tags:
+        - Order
+      responses:
+        '200':
+          description: Ordered orders retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderResponse'
+
+  /orders/status/validated:
+    get:
+      summary: Get all orders with status "validated"
+      operationId: getValidatedOrders
+      tags:
+        - Order
+      responses:
+        '200':
+          description: Validated orders retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderResponse'
+
+  /orders/user/{userId}:
+    get:
+      summary: Get orders by user ID
+      operationId: getOrdersByUser
+      tags:
+        - Order
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Orders by user retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderResponse'
+
+  /orders/{id}/validate:
+    post:
+      summary: Mark order as validated
+      operationId: validateOrder
+      tags:
+        - Order
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order validated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+
+  /orders/{id}/fulfill:
+    post:
+      summary: Mark order as fulfilled
+      operationId: fulfillOrder
+      tags:
+        - Order
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order fulfilled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+  /orders/{id}/deny:
+    post:
+      summary: Mark order as denied
+      operationId: denyOrder
+      tags:
+        - Order
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+
+components:
+  schemas:
+    OrderRequest:
+      type: object
+      required:
+        - productId
+        - userId
+        - managerUsername
+      properties:
+        productId:
+          type: string
+        userId:
+          type: string
+        managerUsername:
+          type: string
+        status:
+          type: string
+          enum: [ORDERED,VALIDATED,FULFILLED, DENIED]
+        orderDate:
+          type: string
+        validationDate:
+          type: string
+        fulfillmentDate:
+          type: string
+        details:
+          type: string
+
+    OrderPatchRequest:
+      type: object
+      properties:
+        productId:
+          type: string
+        managerUsername:
+          type: string
+        status:
+          type: string
+          enum: [ORDERED,VALIDATED,FULFILLED, DENIED]
+        validationDate:
+          type: string
+        fulfillmentDate:
+          type: string
+        details:
+          type: string
+
+    OrderResponse:
+      type: object
+      properties:
+        id:
+          type: string
+
+        productId:
+          type: string
+        userId:
+          type: string
+        managerUsername:
+          type: string
+        status:
+          type: string
+          enum: [ORDERED,VALIDATED,FULFILLED, DENIED]
+        orderDate:
+          type: string
+        validationDate:
+          type: string
+        fulfillmentDate:
+          type: string
+        details:
+          type: string

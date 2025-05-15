@@ -3,18 +3,20 @@ package com.adama.backoffice.products.api;
 import com.adama.backoffice.products.entity.Product;
 import com.adama.backoffice.products.mapper.ProductMapper;
 import com.adama.backoffice.products.repository.ProductRepository;
+import com.adama.backoffice.products.service.ProductService;
 import com.adama.product.api.ProductApi;
 import com.adama.product.model.ProductPatchRequest;
 import com.adama.product.model.ProductRequest;
 import com.adama.product.model.ProductResponse;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -24,9 +26,12 @@ public class ProductController implements ProductApi {
 
     private final ProductRepository productRepository;
 
+    private final ProductService productService;
+
     @Autowired
-    public ProductController(ProductRepository productRepository) {
+    public ProductController(ProductRepository productRepository, ProductService productService) {
         this.productRepository = productRepository;
+        this.productService = productService;
     }
 
     @Override
@@ -99,50 +104,23 @@ public class ProductController implements ProductApi {
     }
 
     @Override
-    @PatchMapping("products/{id}")
+    @PatchMapping("/products/{id}")
     @PreAuthorize("hasAnyRole('ROLE_WAREHOUSE', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     public ResponseEntity<ProductResponse> updateProduct(
-            @PathVariable("id") String id, @Valid @RequestBody ProductPatchRequest productPatchRequest) {
+            @PathVariable String id, @Valid @RequestBody ProductPatchRequest productPatchRequest) {
 
         try {
-            // Parse the UUID from the provided ID
-            UUID uuid = UUID.fromString(id);
-
-            // Check if the product exists
-            Optional<Product> optionalProduct = productRepository.findById(uuid);
-            if (optionalProduct.isEmpty()) {
-                return ResponseEntity.notFound().build(); // Return 404 if not found
-            }
-
-            // Update the product fields
-            Product product = optionalProduct.get();
-            if (productPatchRequest.getName() != null) product.setName(productPatchRequest.getName());
-            if (productPatchRequest.getDescription() != null)
-                product.setDescription(productPatchRequest.getDescription());
-            if (productPatchRequest.getType() != null) product.setType(productPatchRequest.getType());
-            if (productPatchRequest.getBrand() != null) product.setBrand(productPatchRequest.getBrand());
-            if (productPatchRequest.getStatus() != null)
-                product.setStatus(
-                        Product.Status.valueOf(productPatchRequest.getStatus().getValue()));
-            if (productPatchRequest.getModel() != null) product.setModel(productPatchRequest.getModel());
-            if (productPatchRequest.getStatus() != null) product.setStatus(product.getStatus());
-            if (productPatchRequest.getUserId() != null) product.setUserId(productPatchRequest.getUserId());
-
-            // Update metadata
-            product.setLastModified(LocalDateTime.now().toString());
-
-            // Save the updated product
-            productRepository.save(product);
-
-            // Map the updated product to a response object
-            ProductResponse response = ProductMapper.toResponse(product);
-
-            // Return the updated product with a 200 status
-            return ResponseEntity.ok(response);
-
+            UUID.fromString(id);
         } catch (IllegalArgumentException e) {
-            // Return 400 if the ID is not a valid UUID
             return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            Product updatedProduct = productService.updateProduct(id, productPatchRequest);
+            ProductResponse response = ProductMapper.toResponse(updatedProduct);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 }

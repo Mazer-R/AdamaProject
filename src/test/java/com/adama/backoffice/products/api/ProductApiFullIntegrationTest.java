@@ -98,7 +98,7 @@ class ProductApiFullIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name", is("Updated Name")))
-                .andExpect(jsonPath("$.status", is("PENDING")));
+                .andExpect(jsonPath("$.status", is(Product.Status.PENDING.name())));
 
         Product updatedProduct =
                 productRepository.findById(UUID.fromString(productId)).orElseThrow();

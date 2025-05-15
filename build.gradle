@@ -33,8 +33,10 @@ idea {
 	module {
 		sourceDirs += file("$buildDir/generated/product-api-server/src/main/java")
 		sourceDirs += file("$buildDir/generated/user-api-server/src/main/java")
+		sourceDirs += file("$buildDir/generated/order-api-server/src/main/java")
 		generatedSourceDirs += file("$buildDir/generated/product-api-server/src/main/java")
 		generatedSourceDirs += file("$buildDir/generated/user-api-server/src/main/java")
+		generatedSourceDirs += file("$buildDir/generated/order-api-server/src/main/java")
 	}
 }
 
@@ -74,6 +76,7 @@ sourceSets {
 		java {
 			srcDirs += layout.buildDirectory.dir("generated/product-api-server/src/main/java").get().asFile
 			srcDirs += layout.buildDirectory.dir("generated/user-api-server/src/main/java").get().asFile
+			srcDirs += layout.buildDirectory.dir("generated/order-api-server/src/main/java").get().asFile
 		}
 	}
 }
@@ -89,7 +92,7 @@ tasks.register('generateProductApi', GenerateTask) {
 	modelPackage = "com.adama.product.model"
 	invokerPackage = "com.adama.product.invoker"
 	configOptions = [
-			dateLibrary          : "java8",
+			dateLibrary          : "java-time",
 			interfaceOnly        : "true",
 			useTags              : "true",
 			skipDefaultInterface : "true",
@@ -110,7 +113,27 @@ tasks.register('generateUserApi', GenerateTask) {
 	invokerPackage = "com.adama.user.invoker"
 
 	configOptions = [
-			dateLibrary          : "java8",
+			dateLibrary          : "java-time",
+			interfaceOnly        : "true",
+			useTags              : "true",
+			skipDefaultInterface : "true",
+			useSpringController  : "true",
+			useSpringBoot3       : "true",
+			generateBuilders     : "true"
+	]
+}
+tasks.register('generateOrderApi', GenerateTask) {
+	group = "openapi"
+	description = "Genera código del Order API"
+	generatorName = "spring"
+	inputSpec = "$apiSpecDir/order-api.yaml".toString()
+	outputDir = layout.buildDirectory.dir("generated/order-api-server").get().asFile.absolutePath
+	apiPackage = "com.adama.order.api"
+	modelPackage = "com.adama.order.model"
+	invokerPackage = "com.adama.order.invoker"
+
+	configOptions = [
+			dateLibrary          : "java-time",
 			interfaceOnly        : "true",
 			useTags              : "true",
 			skipDefaultInterface : "true",
@@ -121,7 +144,7 @@ tasks.register('generateUserApi', GenerateTask) {
 }
 
 // Hook the tasks into the build process
-compileJava.dependsOn generateProductApi, generateUserApi
+compileJava.dependsOn generateProductApi, generateUserApi, generateOrderApi
 
 
 tasks.build {
@@ -160,7 +183,7 @@ spotless {
 	format 'misc', {
 		target '**/.gitignore', '**/*.gradle', '**/*.md', '**/*.sh', '**/*.properties'
 
-		indentWithTabs()
+		leadingSpacesToTabs()
 		trimTrailingWhitespace()
 		endWithNewline()
 	}

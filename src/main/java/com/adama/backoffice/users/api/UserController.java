@@ -108,7 +108,7 @@ public class UserController implements UserApi {
                 .findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        return ResponseEntity.ok(user.getManagerId());
+        return ResponseEntity.ok(user.getManagerUsername());
     }
 
     @Override
@@ -199,7 +199,7 @@ public class UserController implements UserApi {
             if (userPatchRequest.getLastName() != null) user.setLastName(userPatchRequest.getLastName());
             if (userPatchRequest.getDepartment() != null) user.setDepartment(userPatchRequest.getDepartment());
             if (userPatchRequest.getRole() != null) user.setRole(User.Role.valueOf(userPatchRequest.getRole()));
-            if (userPatchRequest.getManagerId() != null) user.setManagerId(userPatchRequest.getManagerId());
+            if (userPatchRequest.getManagerUsername() != null) user.setManagerUsername(userPatchRequest.getManagerUsername());
 
             user.setLastModified(LocalDateTime.now().toString());
             user.setModifiedBy("SYSTEM");
