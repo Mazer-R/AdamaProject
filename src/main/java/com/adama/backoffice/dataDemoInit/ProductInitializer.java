@@ -58,7 +58,6 @@ public class ProductInitializer implements CommandLineRunner {
             product.setStatus(Product.Status.STOCK);
             product.setModel("Modelo-" + i);
 
-
             productRepository.save(product);
         }
 

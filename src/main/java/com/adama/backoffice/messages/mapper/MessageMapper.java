@@ -20,19 +20,24 @@ public class MessageMapper {
     }
 
     public Message toEntity(MessageRequest request) {
+        User receiver = userRepository
+                .findByUsername(request.getReceiverUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario receptor no encontrado"));
         return Message.builder()
-                .senderId(request.getSenderId())
-                .receiverId(request.getReceiverId())
+                .receiverId(request.getReceiverUsername())
                 .subject(request.getSubject())
                 .content(request.getContent())
                 .replyTo(request.getReplyTo())
+                .isRead(false)
+                .isReply(request.getReplyTo() != null)
                 .messageType(Message.MessageType.INTERNAL)
+                .createdAt(now().toString())
                 .build();
     }
 
     public MessageResponse toResponse(Message message) {
         return MessageResponse.builder()
-                .id(message.getId())
+                .id(UUID.fromString(message.getId()))
                 .senderUsername(getUsernameById(message.getSenderId()))
                 .receiverUsername(getUsernameById(message.getReceiverId()))
                 .subject(message.getSubject())
@@ -41,7 +46,7 @@ public class MessageMapper {
                 .messageType(MessageResponse.MessageTypeEnum.valueOf(
                         message.getMessageType().name()))
                 .replyTo(message.isReply() ? message.getReplyTo() : "")
-                .createdAt(now().toString())
+                .createdAt(message.getCreatedAt())
                 .build();
     }
 

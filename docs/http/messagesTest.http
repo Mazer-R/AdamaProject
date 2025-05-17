@@ -1,4 +1,4 @@
-### 1. Login para obtener el token
+### 1. Login para obtener el token (Admin)
 POST http://localhost:8080/auth/login
 Content-Type: application/json
 
@@ -9,10 +9,22 @@ Content-Type: application/json
 
 > {%
     client.global.set("auth_token", response.body.token);
-    client.global.set("user_id", ""); // Limpiamos variable temporal
 %}
 
-### 2. Obtener ID del usuario actual (para senderId/receiverId)
+### 2. Login usuario normal
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "user"
+}
+
+> {%
+    client.global.set("auth_token_normal", response.body.token);
+%}
+
+### 3. Obtener ID del usuario admin
 GET http://localhost:8080/users/myid
 Authorization: Bearer {{auth_token}}
 
@@ -20,40 +32,95 @@ Authorization: Bearer {{auth_token}}
     client.global.set("user_id", response.body);
 %}
 
-### 3. Crear nuevo mensaje
+### 4. Obtener ID del usuario normal
+GET http://localhost:8080/users/myid
+Authorization: Bearer {{auth_token_normal}}
+
+> {%
+    client.global.set("user_id_normal", response.body);
+%}
+
+### 5. Crear nuevo mensaje (sin senderId)
 POST http://localhost:8080/messages
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {
-  "senderId": "{{user_id}}",
-  "receiverId": "c3cdf7d6-bc2b-4eac-a939-20f93691fe8e",
-  "subject": "Prueba API",
-  "content": "Este es un mensaje de prueba",
-  "replyTo": ""
+  "receiverUsername": "user",
+  "subject": "Prueba API2",
+  "content": "Este es un mensaje de prueba para marcar"
 }
 
 > {%
     client.global.set("message_id", response.body.id);
 %}
 
-### 4. Obtener todos los mensajes (sin filtros)
+### 6. Obtener todos los mensajes (Admin only)
 GET http://localhost:8080/messages
 Authorization: Bearer {{auth_token}}
 
-### 5. Obtener mensajes no leídos
-GET http://localhost:8080/messages?isRead=false
+### 7. Obtener inbox (mensajes no leídos recibidos)
+GET http://localhost:8080/messages/my-messages/inbox
+Authorization: Bearer {{auth_token_normal}}
+
+### 8. Obtener mensajes recibidos (todos)
+GET http://localhost:8080/messages/my-messages
+Authorization: Bearer {{auth_token_normal}}
+
+### 10. Obtener mensajes enviados
+GET http://localhost:8080/messages/my-messages/sent
 Authorization: Bearer {{auth_token}}
 
-### 6. Obtener mensajes por tipo
-GET http://localhost:8080/messages?messageType=INTERNAL
-Authorization: Bearer {{auth_token}}
-
-### 7. Obtener mensaje por ID
+### 11. Obtener mensaje por ID
 GET http://localhost:8080/messages/{{message_id}}
 Authorization: Bearer {{auth_token}}
 
-### 8. Marcar mensaje como leído
+### 12. Marcar mensaje como leído
+PATCH http://localhost:8080/messages/{{message_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token_normal}}
+
+{
+  "isRead": true
+}
+
+### 14. Test de errores - Receiver inválido
+POST http://localhost:8080/messages
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "receiverId": "id-invalido",
+  "subject": "Mensaje erróneo"
+}
+
+### 15. Test de errores - Obtener mensaje inexistente
+GET http://localhost:8080/messages/id-inexistente
+Authorization: Bearer {{auth_token}}
+
+### 16. Test de permisos - Usuario normal intenta acceder a /messages
+GET http://localhost:8080/messages
+Authorization: Bearer {{auth_token_normal}}
+
+### 17. Test de permisos - Usuario normal accede a sus mensajes - MODIFICADO (quitamos /received)
+GET http://localhost:8080/messages/my-messages
+Authorization: Bearer {{auth_token_normal}}
+
+### 18. Test de validación - Campos obligatorios faltantes
+POST http://localhost:8080/messages
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "receiverId": "{{user_id}}",
+  "subject": ""
+}
+
+
+### 19. Test de seguridad - Acceso sin token - MODIFICADO (quitamos /received)
+GET http://localhost:8080/messages/my-messages
+
+### 20. Test de ownership - Marcar mensaje ajeno
 PATCH http://localhost:8080/messages/{{message_id}}
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
@@ -61,30 +128,14 @@ Authorization: Bearer {{auth_token}}
 {
   "isRead": true
 }
-
-### 9. Obtener mensajes no leídos (debería estar vacío ahora)
-GET http://localhost:8080/messages/unread
-Authorization: Bearer {{auth_token}}
-
-### 10. Obtener mensajes por tipo (vía path)
+### 21. Test de tipos de mensaje - MODIFICADO (usamos /type/{type})
 GET http://localhost:8080/messages/type/INTERNAL
 Authorization: Bearer {{auth_token}}
 
-### 11. Test de errores - Crear mensaje con senderId incorrecto
-POST http://localhost:8080/messages
-Content-Type: application/json
+### 23. Test de parámetros inválidos - MODIFICADO (quitamos /received)
+GET http://localhost:8080/messages/my-messages?isRead=maybe
 Authorization: Bearer {{auth_token}}
 
-{
-  "senderId": "id-invalido",
-  "receiverId": "523599e9-2d40-44c5-b470-22fb430fae1b",
-  "subject": "Mensaje erróneo"
-}
-
-### 12. Test de errores - Obtener mensaje inexistente
-GET http://localhost:8080/messages/id-inexistente
-Authorization: Bearer {{auth_token}}
-
-### 13. Test de errores - Tipo de mensaje inválido
-GET http://localhost:8080/messages/type/INVALIDO
-Authorization: Bearer {{auth_token}}
+###24
+GET http://localhost:8080/users/role
+Authorization: Bearer{{auth_token}}

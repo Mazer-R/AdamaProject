@@ -33,6 +33,7 @@ public class OrderController implements OrderApi {
 
     @Override
     @GetMapping("/orders")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
     public ResponseEntity<List<OrderResponse>> getAllOrders() {
         List<Order> orders = orderRepository.findAll();
         return ResponseEntity.ok(orders.stream().map(OrderMapper::toResponse).collect(Collectors.toList()));

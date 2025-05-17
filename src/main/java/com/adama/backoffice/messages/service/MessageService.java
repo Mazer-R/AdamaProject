@@ -4,6 +4,7 @@ import com.adama.backoffice.exception.MessageNotFoundException;
 import com.adama.backoffice.messages.entity.Message;
 import com.adama.backoffice.messages.mapper.MessageMapper;
 import com.adama.backoffice.messages.repository.MessageRepository;
+import com.adama.backoffice.users.entity.User;
 import com.adama.backoffice.users.repository.UserRepository;
 import com.adama.message.model.MessageRequest;
 import com.adama.message.model.MessageResponse;
@@ -21,15 +22,10 @@ public class MessageService {
     private final UserRepository userRepository;
     private final MessageMapper messageMapper;
 
-    public List<MessageResponse> getAllMessages(Boolean isRead, String messageType) {
+    public List<MessageResponse> getAllMessages(String messageType) {
         List<Message> messages;
 
-        if (isRead != null && messageType != null) {
-            Message.MessageType type = Message.MessageType.valueOf(messageType.toUpperCase());
-            messages = messageRepository.findByIsReadAndMessageType(isRead, type);
-        } else if (isRead != null) {
-            messages = messageRepository.findByIsRead(isRead);
-        } else if (messageType != null) {
+        if (messageType != null) {
             Message.MessageType type = Message.MessageType.valueOf(messageType.toUpperCase());
             messages = messageRepository.findByMessageType(type);
         } else {
@@ -40,22 +36,28 @@ public class MessageService {
     }
 
     public MessageResponse createMessage(MessageRequest request) {
-        Message message = messageMapper.toEntity(request);
-        message.setMessageType(Message.MessageType.INTERNAL);
-
         String currentUserId = getCurrentUserId();
-        if (!currentUserId.equals(request.getSenderId())) {
-            throw new SecurityException("Sender ID must match authenticated user");
+        Message reply = null;
+        if (request.getReplyTo() != null) {
+            reply = messageRepository
+                    .findById(request.getReplyTo())
+                    .orElseThrow(() -> new IllegalArgumentException("Mensaje original no existe"));
         }
+        User receiver = userRepository
+                .findByUsername(request.getReceiverUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario receptor no existe"));
 
+        Message message = messageMapper.toEntity(request);
+        message.setSenderId(currentUserId);
+        message.setReceiverId(receiver.getId().toString());
+        message.setSubject(request.getSubject());
+        message.setContent(request.getContent());
+        if (reply != null) {
+            message.setReplyTo(reply.getId());
+            message.setReply(true);
+            message.setSubject("RE:" + reply.getSubject());
+        }
         return messageMapper.toResponse(messageRepository.save(message));
-    }
-
-    public List<MessageResponse> getUnreadMessagesForCurrentUser() {
-        String currentUserId = getCurrentUserId();
-        return messageRepository.findByReceiverIdAndIsRead(currentUserId, false).stream()
-                .map(messageMapper::toResponse)
-                .toList();
     }
 
     public MessageResponse getMessageById(String id) {
@@ -65,7 +67,6 @@ public class MessageService {
                 .orElseThrow(() -> new MessageNotFoundException(id));
     }
 
-    // 5. Marcar como leído
     public MessageResponse markAsRead(String id, boolean isRead) {
         Message message = messageRepository.findById(id).orElseThrow(() -> new MessageNotFoundException(id));
 
@@ -80,6 +81,27 @@ public class MessageService {
 
     public List<MessageResponse> getMessagesByType(Message.MessageType type) {
         return messageRepository.findByMessageType(type).stream()
+                .map(messageMapper::toResponse)
+                .toList();
+    }
+
+    public List<MessageResponse> getReceivedMessages(Boolean isRead) {
+        String userId = getCurrentUserId();
+        return messageRepository.findByReceiverIdAndIsRead(userId, isRead).stream()
+                .map(messageMapper::toResponse)
+                .toList();
+    }
+
+    public List<MessageResponse> getUnreadInbox() {
+        String userId = getCurrentUserId();
+        return messageRepository.findInbox(userId).stream()
+                .map(messageMapper::toResponse)
+                .toList();
+    }
+
+    public List<MessageResponse> getSentMessages() {
+        String userId = getCurrentUserId();
+        return messageRepository.findBySenderId(userId).stream()
                 .map(messageMapper::toResponse)
                 .toList();
     }

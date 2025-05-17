@@ -1,14 +1,14 @@
 package com.adama.backoffice.security.service;
 
-import com.adama.backoffice.users.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +27,12 @@ public class JwtService {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        if (userDetails instanceof User) {
-            claims.put("role", ((User) userDetails).getRole().name());
-        }
+        claims.put(
+                "authorities",
+                userDetails.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toList()));
+
         return Jwts.builder()
                 .claims(claims)
                 .subject(userDetails.getUsername())
@@ -73,7 +76,19 @@ public class JwtService {
                 .getPayload();
     }
 
-    public String extractRole(String token) {
-        return extractClaim(token, claims -> claims.get("role", String.class));
+    public Collection<? extends GrantedAuthority> extractAuthorities(String token) {
+        Claims claims = extractAllClaims(token);
+        Object authoritiesObj = claims.get("authorities");
+
+        if (authoritiesObj instanceof List<?>) {
+            List<?> authoritiesList = (List<?>) authoritiesObj;
+            return authoritiesList.stream()
+                    .filter(obj -> obj instanceof String)
+                    .map(obj -> (String) obj)
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
     }
 }

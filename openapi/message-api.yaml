@@ -10,7 +10,7 @@ servers:
 paths:
   /messages:
     get:
-      summary: Get all messages
+      summary: Get all messages (Admin only)
       operationId: getAllMessages
       tags:
         - Message
@@ -41,7 +41,8 @@ paths:
           description: Bad request
         '401':
           description: Unauthorized
-
+      security:
+        - BearerAuth: []
 
     post:
       summary: Create a new message
@@ -65,16 +66,18 @@ paths:
           description: Bad request
         '401':
           description: Unauthorized
+      security:
+        - BearerAuth: []
 
-  /messages/unread:
+  /messages/my-messages/inbox:
     get:
-      summary: Get unread messages for current user
-      operationId: getUnreadMessages
+      summary: Get unread received messages
+      operationId: getInboxMessages
       tags:
         - Message
       responses:
         '200':
-          description: List of unread messages
+          description: List of unread received messages
           content:
             application/json:
               schema:
@@ -83,7 +86,55 @@ paths:
                   $ref: '#/components/schemas/MessageResponse'
         '401':
           description: Unauthorized
+      security:
+        - BearerAuth: []
 
+  /messages/my-messages/received:
+    get:
+      summary: Get received messages
+      operationId: getReceivedMessages
+      tags:
+        - Message
+      parameters:
+        - in: query
+          name: isRead
+          required: false
+          schema:
+            type: boolean
+          description: Filter by read/unread status
+      responses:
+        '200':
+          description: List of received messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+      security:
+        - BearerAuth: []
+
+  /messages/my-messages/sent:
+    get:
+      summary: Get sent messages
+      operationId: getSentMessages
+      tags:
+        - Message
+      responses:
+        '200':
+          description: List of sent messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+      security:
+        - BearerAuth: []
 
   /messages/{id}:
     get:
@@ -143,7 +194,6 @@ paths:
         '500':
           description: Server error
 
-
   /messages/type/{type}:
     get:
       summary: Get messages by type
@@ -182,13 +232,10 @@ components:
     MessageRequest:
       type: object
       required:
-        - senderId
-        - receiverId
+        - receiverUsername
         - subject
       properties:
-        senderId:
-          type: string
-        receiverId:
+        receiverUsername:
           type: string
         subject:
           type: string
@@ -210,6 +257,7 @@ components:
       properties:
         id:
           type: string
+          format: UUID
         senderUsername:
           type: string
         receiverUsername:

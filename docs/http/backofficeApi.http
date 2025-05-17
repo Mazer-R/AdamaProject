@@ -18,7 +18,7 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {
-  "username": "user",
+  "username": "user3",
   "password": "user",
   "firstName": "user",
   "lastName": "userez",
@@ -28,7 +28,7 @@ Authorization: Bearer {{auth_token}}
 
 ### 3. Acceso a endpoint seguro usando el mismo token
 GET http://localhost:8080/users
-Authorization: Bearer {{auth_token}}
+Authorization: Bearer {{auth_token_normal}}
 
 ### 4.Delete
 ### 4.Delete
@@ -36,5 +36,9 @@ DELETE http://localhost:8080/users/461622bd-9cc7-476c-b760-098c96012ef0
 Authorization: Bearer {{auth_token}}
 
 ###5.Role
-GET http://localhost:8080/users/me/role
+GET http://localhost:8080/users/role
 Authorization: Bearer {{auth_token}}
+
+###6.RoleNormal
+GET http://localhost:8080/users/role
+Authorization: Bearer {{auth_token_normal}}

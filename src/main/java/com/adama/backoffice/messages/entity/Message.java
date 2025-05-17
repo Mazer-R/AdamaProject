@@ -1,7 +1,6 @@
 package com.adama.backoffice.messages.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -37,10 +36,7 @@ public class Message {
     private String replyTo;
 
     @CreationTimestamp
-    private LocalDateTime sentAt;
-
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+    private String createdAt;
 
     public enum MessageType {
         INTERNAL,
