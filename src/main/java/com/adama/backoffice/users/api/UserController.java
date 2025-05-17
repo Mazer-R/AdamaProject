@@ -113,7 +113,7 @@ public class UserController implements UserApi {
 
     @Override
     @GetMapping("/users/usernames")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<String>> getAllUsernames() {
         List<String> usernames = userRepository.findAllUsernames();
         return ResponseEntity.ok(usernames);

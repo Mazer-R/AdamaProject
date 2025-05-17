@@ -1,5 +1,82 @@
-### GET request to example server
-GET https://examples.http-client.intellij.net/get
-    ?generated-in=IntelliJ IDEA
+### 1. Login para obtener token
+POST http://localhost:8080/auth/login
+Content-Type: application/json
 
-###
+{
+  "username": "admin",
+  "password": "admin"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+### 2. Crear nueva orden
+POST http://localhost:8080/orders
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "productId": "358863d6-31f4-449e-9b25-391b8502b4e2",
+  "userId": "523599e9-2d40-44c5-b470-22fb430fae1b",
+  "managerUsername": "manager"
+}
+
+> {% client.global.set("order_id", response.body.id); %}
+
+### 3. Obtener todas las órdenes
+GET http://localhost:8080/orders
+Authorization: Bearer {{auth_token}}
+
+### 4. Obtener orden por ID
+GET http://localhost:8080/orders/{{order_id}}
+Authorization: Bearer {{auth_token}}
+
+### 5. Actualizar orden (PATCH)
+PATCH http://localhost:8080/orders/{{order_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "details": "Actualización de prioridad",
+  "status": "VALIDATED"
+}
+
+### 6. Validar orden
+POST http://localhost:8080/orders/{{order_id}}/validate
+Authorization: Bearer {{auth_token}}
+
+### 7. Cumplir orden
+POST http://localhost:8080/orders/7eb8f0a7-e7fd-4d48-a3f8-387c477b0caa/fulfill
+Authorization: Bearer {{auth_token}}
+
+### 8. Denegar orden
+POST http://localhost:8080/orders/{{order_id}}/deny
+Authorization: Bearer {{auth_token}}
+
+### 9. Obtener órdenes por estado = ORDERED
+GET http://localhost:8080/orders/status/ordered
+Authorization: Bearer {{auth_token}}
+
+### 10. Obtener órdenes por estado = VALIDATED
+GET http://localhost:8080/orders/status/validated
+Authorization: Bearer {{auth_token}}
+
+### 11. Obtener órdenes por usuario
+GET http://localhost:8080/orders/user/523599e9-2d40-44c5-b470-22fb430fae1b
+Authorization: Bearer {{auth_token}}
+
+### 12. Eliminar orden
+DELETE http://localhost:8080/orders/{{order_id}}
+Authorization: Bearer {{auth_token}}
+
+### 13. Actualizar usuario (PATCH)
+PATCH http://localhost:8080/users/523599e9-2d40-44c5-b470-22fb430fae1b
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "managerUsername": "nuevo_manager"
+}
+
+### 14. Obtener productos
+GET http://localhost:8080/products
+Authorization: Bearer {{auth_token}}
