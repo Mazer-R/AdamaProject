@@ -44,6 +44,7 @@ public class OrderController implements OrderApi {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody OrderRequest orderRequest) {
         Order order = OrderMapper.toEntity(orderRequest);
+        orderService.createOrder(orderRequest.getProductId());
         order = orderRepository.save(order);
         return ResponseEntity.status(201).body(OrderMapper.toResponse(order));
     }
