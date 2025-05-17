@@ -13,7 +13,6 @@ public class ProductMapper {
         product.setDescription(request.getDescription());
         product.setType(request.getType());
         product.setBrand(request.getBrand());
-        product.setModel(request.getModel());
         product.setStatus(Product.Status.STOCK);
         product.setUserId(request.getUserId());
         product.setCreated(LocalDateTime.now().toString());
@@ -28,7 +27,6 @@ public class ProductMapper {
         response.setDescription(entity.getDescription());
         response.setType(entity.getType());
         response.setBrand(entity.getBrand());
-        response.setModel(entity.getModel());
         response.setStatus(ProductResponse.StatusEnum.valueOf(entity.getStatus().name()));
         response.setUserId(entity.getUserId());
         response.setCreated(entity.getCreated());

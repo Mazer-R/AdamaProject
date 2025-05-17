@@ -56,7 +56,6 @@ public class ProductInitializer implements CommandLineRunner {
             product.setType(randomFrom(types));
             product.setBrand(randomFrom(brands));
             product.setStatus(Product.Status.STOCK);
-            product.setModel("Modelo-" + i);
 
             productRepository.save(product);
         }

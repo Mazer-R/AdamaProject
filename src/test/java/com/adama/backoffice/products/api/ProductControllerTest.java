@@ -48,7 +48,6 @@ class ProductControllerTest {
         testProduct.setName("Test Product");
         testProduct.setType("Test Type");
         testProduct.setBrand("Test Brand");
-        testProduct.setModel("Test Model");
         testProduct.setStatus(Product.Status.STOCK);
         testProduct.setCreated(now().toString());
         testProduct.setLastModified(now().toString());
@@ -62,7 +61,6 @@ class ProductControllerTest {
         request.setName("Test Product");
         request.setType("Test Type");
         request.setBrand("Test Brand");
-        request.setModel("Test Model");
 
         when(productRepository.save(any(Product.class))).thenReturn(testProduct);
 
@@ -73,7 +71,6 @@ class ProductControllerTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Test Product", response.getBody().getName());
-        assertEquals("Test Model", response.getBody().getModel());
         verify(productRepository).save(any(Product.class));
     }
 
@@ -143,7 +140,6 @@ class ProductControllerTest {
         String id = testId.toString();
         ProductPatchRequest request = new ProductPatchRequest();
         request.setName("Updated Product");
-        request.setModel("Updated Model");
 
         Product updatedProduct = new Product();
         updatedProduct.setId(testId);
@@ -151,7 +147,6 @@ class ProductControllerTest {
         updatedProduct.setDescription("Test Description");
         updatedProduct.setType("Test Type");
         updatedProduct.setBrand("Test Brand");
-        updatedProduct.setModel("Updated Model");
         updatedProduct.setStatus(Product.Status.STOCK);
         updatedProduct.setUserId("user123");
 
@@ -165,7 +160,6 @@ class ProductControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Updated Product", response.getBody().getName());
-        assertEquals("Updated Model", response.getBody().getModel());
     }
 
     @Test
@@ -209,7 +203,6 @@ class ProductControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(testProduct.getName(), response.getBody().getName());
-        assertEquals(testProduct.getModel(), response.getBody().getModel());
     }
 
     @Test

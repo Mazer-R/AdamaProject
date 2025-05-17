@@ -127,7 +127,6 @@ components:
         - name
         - type
         - brand
-        - model
       properties:
         name:
           type: string
@@ -136,8 +135,6 @@ components:
         type:
           type: string
         brand:
-          type: string
-        model:
           type: string
         userId:
           type: string
@@ -152,8 +149,6 @@ components:
         type:
           type: string
         brand:
-          type: string
-        model:
           type: string
         status:
           type: string
@@ -173,8 +168,6 @@ components:
         type:
           type: string
         brand:
-          type: string
-        model:
           type: string
         status:
           type: string

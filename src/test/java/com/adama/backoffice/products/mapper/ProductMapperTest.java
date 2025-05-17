@@ -18,7 +18,6 @@ class ProductMapperTest {
         request.setName("Test Product");
         request.setType("Test Type");
         request.setBrand("Test Brand");
-        request.setModel("Test Model");
         request.setDescription("Optional Description");
 
         // Act
@@ -29,7 +28,6 @@ class ProductMapperTest {
         assertEquals("Test Type", product.getType());
         assertEquals("Test Brand", product.getBrand());
         assertEquals(Product.Status.STOCK, product.getStatus());
-        assertEquals("Test Model", product.getModel());
         assertEquals("Optional Description", product.getDescription());
         assertNotNull(product.getCreated());
         assertNotNull(product.getLastModified());
@@ -45,7 +43,6 @@ class ProductMapperTest {
         product.setDescription("Test Description");
         product.setType("Test Type");
         product.setBrand("Test Brand");
-        product.setModel("Test Model");
         product.setStatus(Product.Status.STOCK);
         LocalDateTime now = LocalDateTime.now();
         product.setCreated(now.toString());
@@ -60,6 +57,5 @@ class ProductMapperTest {
         assertEquals("Test Description", response.getDescription());
         assertEquals("Test Type", response.getType());
         assertEquals("Test Brand", response.getBrand());
-        assertEquals("Test Model", response.getModel());
     }
 }

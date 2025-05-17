@@ -69,14 +69,12 @@ class ProductControllerIntegrationTest {
         request.setName("Test Product");
         request.setType("Test Type");
         request.setBrand("Test Brand");
-        request.setModel("Test Model");
 
         Product savedProduct = new Product();
         savedProduct.setId(UUID.randomUUID());
         savedProduct.setName("Test Product");
         savedProduct.setType("Test Type");
         savedProduct.setBrand("Test Brand");
-        savedProduct.setModel("Test Model");
         savedProduct.setStatus(Product.Status.STOCK);
         savedProduct.setCreated(now().toString());
         savedProduct.setLastModified(now().toString());
@@ -112,7 +110,6 @@ class ProductControllerIntegrationTest {
         existingProduct.setDescription("Original Description");
         existingProduct.setType("Original Type");
         existingProduct.setBrand("Original Brand");
-        existingProduct.setModel("Original Model");
         existingProduct.setStatus(Product.Status.STOCK);
         existingProduct.setUserId("original-user");
 
@@ -122,7 +119,6 @@ class ProductControllerIntegrationTest {
         updatedProduct.setDescription("Original Description");
         updatedProduct.setType("Original Type");
         updatedProduct.setBrand("Original Brand");
-        updatedProduct.setModel("Original Model");
         updatedProduct.setStatus(Product.Status.INACTIVE);
         updatedProduct.setUserId("original-user");
 

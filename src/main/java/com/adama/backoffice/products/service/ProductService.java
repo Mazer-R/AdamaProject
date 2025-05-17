@@ -33,7 +33,6 @@ public class ProductService {
         if (request.getBrand() != null) product.setBrand(request.getBrand());
         if (request.getStatus() != null)
             product.setStatus(Product.Status.valueOf(request.getStatus().name()));
-        if (request.getModel() != null) product.setModel(request.getModel());
         if (request.getUserId() != null) product.setUserId(request.getUserId());
 
         product.setLastModified(LocalDateTime.now().toString());

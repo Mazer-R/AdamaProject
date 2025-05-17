@@ -48,7 +48,6 @@ class ProductApiFullIntegrationTest {
         request.setName("Integration Test Product");
         request.setType("Integration Test Type");
         request.setBrand("Integration Test Brand");
-        request.setModel("Integration Test Model");
 
         String responseJson = mockMvc.perform(post("/products")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -81,7 +80,6 @@ class ProductApiFullIntegrationTest {
         product.setDescription("Original Description");
         product.setType("Original Type");
         product.setBrand("Original Brand");
-        product.setModel("Original Model");
         product.setStatus(Product.Status.STOCK);
         product.setUserId("original-user");
         product = productRepository.save(product);
@@ -116,7 +114,6 @@ class ProductApiFullIntegrationTest {
         product.setDescription("Delete Me");
         product.setType("Test Type");
         product.setBrand("Test Brand");
-        product.setModel("Test Model");
         product.setStatus(Product.Status.STOCK);
         product.setUserId("test-user");
         product = productRepository.save(product);

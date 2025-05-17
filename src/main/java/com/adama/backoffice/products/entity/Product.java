@@ -26,7 +26,6 @@ public class Product {
     private String description;
     private String type;
     private String brand;
-    private String model;
     private Status status;
     private String userId;
     private String created;
