@@ -60,13 +60,14 @@ Testing:
 The project includes unit and integration tests using JUnit and Mockito.
 To run them:
 
-./gradlew test
+	./gradlew test
 
 Security:
 The system uses JWT for authenticating and authorizing access to protected endpoints.
 Tokens are generated upon login and must be included in the Authorization header for subsequent requests.
 
 Project Structure:
+
 	•	/auth: handles authentication and token generation
 	•	/product: product management logic
 	•	/order: product request and approval process
@@ -93,6 +94,7 @@ Características principales:
 
 Tecnologías utilizadas:
 Backend:
+
 	•	Java 21
 	•	Spring Boot
 	•	Spring Security
@@ -102,27 +104,28 @@ Backend:
 	•	Docker + Docker Compose
 
 Frontend (repositorio separado):
+
 	•	JavaFX: https://github.com/Mazer-R/Adama_UI
 
 Base de datos:
+
 	•	PostgreSQL (contenedor Docker)
 
 Instalación y ejecución:
+1.	Clona este repositorio:
+   
+		git clone https://github.com/Mazer-R/adama.git
 
-	1.	Clona este repositorio:
  
-git clone https://github.com/Mazer-R/adama.git
-
-	2.	Dirígete al directorio raíz del proyecto y levanta la base de datos con Docker Compose:
- 
-docker-compose up
-
-	3.	Compila y ejecuta el backend:
- 
-./gradlew clean build
-./gradlew bootRun
-
-	4.	Ejecuta el cliente JavaFX desde su repositorio correspondiente (Adama_UI).
+2.	Dirígete al directorio raíz del proyecto y levanta la base de datos con Docker Compose:
+	
+		docker-compose up
+3.	Compila y ejecuta el backend:
+   
+		./gradlew clean build
+		./gradlew bootRun
+  	
+4.	Ejecuta el cliente JavaFX desde su repositorio correspondiente (Adama_UI).
 
 Notas:
 
@@ -132,14 +135,16 @@ Notas:
 Pruebas:
 El proyecto incluye pruebas unitarias e integración con JUnit y Mockito.
 Para ejecutarlas:
-./gradlew test
+
+	./gradlew test
 
 Seguridad:
 
-El sistema utiliza JWT para autenticar y autorizar el acceso a los endpoints.
-Los tokens se generan tras el login y deben incluirse en la cabecera Authorization de cada solicitud.
+	El sistema utiliza JWT para autenticar y autorizar el acceso a los endpoints.
+	Los tokens se generan tras el login y deben incluirse en la cabecera Authorization de cada solicitud.
 
 Estructura del proyecto:
+
 	•	/auth: autenticación y emisión de tokens JWT
 	•	/product: lógica de gestión de productos
 	•	/order: gestión de solicitudes de productos
