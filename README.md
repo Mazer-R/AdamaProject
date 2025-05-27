@@ -34,21 +34,20 @@ Database:
 
 Installation and Execution:
 
-	1.	Clone the repository:
+1.	Clone the repository:
  
-git clone https://github.com/Mazer-R/adama.git
-
-	2.	Navigate to the project root and start the database:
+		git@github.com:Mazer-R/AdamaProject.git
+2.	Navigate to the project root and start the database:
  
-docker-compose up
+		docker-compose up
 
-	3.	Build and run the backend:
+3.	Build and run the backend:
  
-./gradlew clean build
+		./gradlew clean build
 
-./gradlew bootRun
+	./gradlew bootRun
 
-	4.	Launch the JavaFX client from the Adama_UI repository.
+4.	Launch the JavaFX client from the Adama_UI repository.
 
 Notes:
 
@@ -114,7 +113,7 @@ Base de datos:
 Instalación y ejecución:
 1.	Clona este repositorio:
    
-		git clone https://github.com/Mazer-R/adama.git
+		git clone git@github.com:Mazer-R/AdamaProject.git
 
  
 2.	Dirígete al directorio raíz del proyecto y levanta la base de datos con Docker Compose:
